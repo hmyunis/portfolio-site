@@ -1,0 +1,278 @@
+@import "tailwindcss";
+
+@theme {
+    --color-bg: var(--color-bg);
+    --color-text: var(--color-text);
+    --color-muted: var(--color-muted);
+    --color-border: var(--color-border);
+    --color-accent: var(--color-accent);
+    --color-surface: var(--color-surface);
+}
+
+:root {
+    --color-bg: #ffffff;
+    --color-text: #111827;
+    --color-muted: #6b7280;
+    --color-border: #111827;
+    --color-accent: #ef4444;
+    --color-surface: #f3f4f6;
+
+    --font-sans: "Inter", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --font-mono: "Menlo", "Monaco", "Courier New", monospace;
+
+    --border-width: 2px;
+    --shadow-thick: 8px 8px 0px 0px rgba(0, 0, 0, 0.15);
+}
+
+.dark {
+    --color-bg: #0f172a;
+    --color-text: #f8fafc;
+    --color-muted: #94a3b8;
+    --color-border: #f8fafc;
+    --color-accent: #3b82f6;
+    --color-surface: #1e293b;
+
+    --shadow-thick: 8px 8px 0px 0px rgba(255, 255, 255, 0.1);
+}
+
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    transition: background-color 0.3s, color 0.3s;
+    line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+}
+
+h1 {
+    background: linear-gradient(135deg, var(--color-text) 0%, var(--color-muted) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.dark h1 {
+    background: linear-gradient(135deg, var(--color-text) 0%, var(--color-accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+p {
+    line-height: 1.7;
+}
+
+a {
+    transition: all 0.2s ease;
+}
+
+button,
+[type="button"],
+[type="submit"] {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+button:hover,
+[type="button"]:hover,
+[type="submit"]:hover {
+    transform: translateY(-1px);
+}
+
+button:active,
+[type="button"]:active,
+[type="submit"]:active {
+    transform: translateY(0);
+}
+
+@-webkit-keyframes bg-scrolling-reverse {
+    100% {
+        background-position: 50px 50px;
+    }
+}
+@-moz-keyframes bg-scrolling-reverse {
+    100% {
+        background-position: 50px 50px;
+    }
+}
+@-o-keyframes bg-scrolling-reverse {
+    100% {
+        background-position: 50px 50px;
+    }
+}
+@keyframes bg-scrolling-reverse {
+    100% {
+        background-position: 50px 50px;
+    }
+}
+@-webkit-keyframes bg-scrolling {
+    0% {
+        background-position: 50px 50px;
+    }
+}
+@-moz-keyframes bg-scrolling {
+    0% {
+        background-position: 50px 50px;
+    }
+}
+@-o-keyframes bg-scrolling {
+    0% {
+        background-position: 50px 50px;
+    }
+}
+@keyframes bg-scrolling {
+    0% {
+        background-position: 50px 50px;
+    }
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAIAAACRXR/mAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAABnSURBVHja7M5RDYAwDEXRDgmvEocnlrQS2SwUFST9uEfBGWs9c97nbGtDcquqiKhOImLs/UpuzVzWEi1atGjRokWLFi1atGjRokWLFi1atGjRokWLFi1af7Ukz8xWp8z8AAAA//8DAJ4LoEAAlL1nAAAAAElFTkSuQmCC")
+        repeat 0 0;
+    opacity: 0.48;
+    -webkit-animation: bg-scrolling-reverse 0.92s infinite;
+    -moz-animation: bg-scrolling-reverse 0.92s infinite;
+    -o-animation: bg-scrolling-reverse 0.92s infinite;
+    animation: bg-scrolling-reverse 0.92s infinite;
+    -webkit-animation-timing-function: linear;
+    -moz-animation-timing-function: linear;
+    -o-animation-timing-function: linear;
+    animation-timing-function: linear;
+}
+
+.dark body::before {
+    opacity: 0.1;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+*:focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 3px;
+}
+
+.card-hover {
+    transition: all 0.3s ease;
+    border-width: var(--border-width);
+    box-shadow: var(--shadow-thick);
+}
+
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 0.2);
+}
+
+.dark .card-hover:hover {
+    box-shadow: 8px 8px 0px 0px rgba(255, 255, 255, 0.15);
+}
+
+.gradient-accent {
+    background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent) 100%);
+}
+
+.glass {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark .glass {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+.sr-only:focus,
+.focus\:not-sr-only:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: inherit;
+    margin: inherit;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.animate-shimmer-button {
+    position: relative;
+}
+
+.animate-shimmer-button::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(239, 68, 68, 0.8) 25%,
+        rgba(255, 255, 255, 0.9) 50%,
+        rgba(59, 130, 246, 0.8) 75%,
+        transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s linear infinite;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.animate-shimmer-button > button {
+    position: relative;
+    z-index: 1;
+}
+
+.dark .animate-shimmer-button::before {
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(59, 130, 246, 0.9) 25%,
+        rgba(255, 255, 255, 0.8) 50%,
+        rgba(239, 68, 68, 0.9) 75%,
+        transparent 100%
+    );
+    background-size: 200% 100%;
+}
+
+.form-alert {
+    background-color: rgb(255, 255, 255) !important;
+}
+
+.dark .form-alert {
+    background-color: transparent !important;
+}

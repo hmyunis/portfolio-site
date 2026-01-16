@@ -1,0 +1,25 @@
+---
+import ThemeToggle from './ui/ThemeToggle';
+import MobileMenuWrapper from './features/MobileMenuWrapper';
+import { NAVIGATION_LINKS } from '../config/constants';
+---
+
+<nav class="sticky top-0 z-50 w-full bg-bg/80 backdrop-blur-md border-b-[2px] border-border shadow-[0_3px_0px_0px_rgba(0,0,0,0.1)] dark:shadow-[0_3px_0px_0px_rgba(255,255,255,0.1)]" role="navigation" aria-label="Main navigation">
+  <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
+    <a href="/" class="text-xl font-bold tracking-tight" aria-label="Home">
+      HMY<span class="text-accent">.</span>
+    </a>
+
+    <div class="flex items-center gap-4">
+      <div class="hidden md:flex gap-6 text-sm font-medium text-muted">
+        {NAVIGATION_LINKS.map((link) => (
+          <a href={link.href} class="hover:text-text transition-colors" aria-label={link.ariaLabel}>
+            {link.label}
+          </a>
+        ))}
+      </div>
+      <MobileMenuWrapper client:load />
+      <ThemeToggle client:load />
+    </div>
+  </div>
+</nav>

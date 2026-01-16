@@ -1,0 +1,126 @@
+---
+import Navbar from '../components/Navbar.astro';
+import ScrollProgress from '../components/ui/ScrollProgress';
+import '../styles/global.css';
+import siteData from '../data/siteData.json';
+import { SITE_CONFIG, EXTERNAL_LINKS } from '../config/constants';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  imageAlt?: string;
+}
+
+const { title, description = SITE_CONFIG.defaultDescription, image, imageAlt } = Astro.props;
+const fullTitle = title.includes('|') ? title : `${title} | ${siteData.name}`;
+const currentUrl = new URL(Astro.url.pathname, SITE_CONFIG.url).href;
+const ogImage = image || `${SITE_CONFIG.url}/og-image.png`;
+const ogImageAlt = imageAlt || `${siteData.name} - ${siteData.role}`;
+const xSocial = siteData.socials.find(s => s.name === 'X');
+const twitterHandle = xSocial ? xSocial.url.replace(/https?:\/\/(www\.)?(x\.com|twitter\.com)\//, '@').replace(/\/$/, '') : '';
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="author" content={siteData.name} />
+    <meta name="theme-color" content={SITE_CONFIG.themeColor} />
+    <meta name="keywords" content={`${siteData.name}, ${siteData.role}, portfolio, software engineer, developer, ${siteData.skills.forte.map(s => s.name).join(', ')}`} />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="English" />
+    <meta name="revisit-after" content="7 days" />
+    
+    <title>{fullTitle}</title>
+    
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={currentUrl} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:alt" content={ogImageAlt} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:site_name" content={siteData.name} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="en_US" />
+    
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content={twitterHandle} />
+    <meta name="twitter:creator" content={twitterHandle} />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
+    
+    <meta name="linkedin:owner" content={siteData.socials.find(s => s.name === 'LinkedIn')?.url || ''} />
+    
+    <link rel="canonical" href={currentUrl} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    
+    <link rel="preconnect" href={EXTERNAL_LINKS.fonts.google} />
+    <link rel="preconnect" href={EXTERNAL_LINKS.fonts.googleStatic} crossorigin />
+    <link href={EXTERNAL_LINKS.fonts.inter} rel="stylesheet" />
+    
+    <link rel="preconnect" href={EXTERNAL_LINKS.api.web3forms} />
+    <link rel="dns-prefetch" href={EXTERNAL_LINKS.api.web3forms} />
+    <link rel="preconnect" href={EXTERNAL_LINKS.social.github} crossorigin />
+    <link rel="preconnect" href={EXTERNAL_LINKS.social.linkedin} crossorigin />
+    
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Person",
+      "name": siteData.name,
+      "jobTitle": siteData.role,
+      "email": siteData.email,
+      "telephone": siteData.phone,
+      "url": SITE_CONFIG.url,
+      "image": ogImage,
+      "sameAs": siteData.socials.map(s => s.url),
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": siteData.location.split(',')[0]?.trim() || siteData.location,
+        "addressCountry": siteData.location.split(',')[1]?.trim() || ""
+      },
+      "knowsAbout": siteData.skills.forte.map(s => s.name).concat(siteData.skills.exposure),
+      "description": description
+    })} />
+    
+    <script is:inline>
+      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    </script>
+  </head>
+  
+  <body class="antialiased">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-accent focus:text-white focus:font-bold focus:border-[2px] focus:border-border focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)]">
+      Skip to main content
+    </a>
+    
+    <ScrollProgress client:load />
+    <Navbar />
+    
+    <main id="main-content">
+      <slot />
+    </main>
+
+    <footer class="border-t-[2px] border-border mt-32 py-12" role="contentinfo">
+      <div class="max-w-4xl mx-auto px-6 text-center text-sm text-muted">
+        <p>&copy; {new Date().getFullYear()} {siteData.name}. Website <a href="https://github.com/hmyunis/portfolio-site" target="_blank" rel="noopener noreferrer" class="text-accent hover:underline" aria-label="View source code on GitHub">
+          Source Code <span class="sr-only">on GitHub</span>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 -mt-1 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

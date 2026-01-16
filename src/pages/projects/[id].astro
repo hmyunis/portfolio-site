@@ -1,0 +1,100 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { SITE_CONFIG } from '../../config/constants';
+import { ArrowLeft, ExternalLink, Github, Tag } from 'lucide-react';
+import projects from '../../data/projects.json';
+
+export function getStaticPaths() {
+  return projects.map((project) => ({
+    params: { id: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const projectImage = project.images[0] || `${SITE_CONFIG.url}/og-image.png`;
+const projectDescription = project.description || `Case study for ${project.title} - ${project.tagline}`;
+---
+
+<Layout 
+  title={`${project.title} | Case Study`}
+  description={projectDescription}
+  image={projectImage}
+  imageAlt={`${project.title} - ${project.tagline}`}
+>
+  <main class="max-w-3xl mx-auto px-6 py-24">
+    <a href="/#projects" class="inline-flex items-center gap-2 text-muted hover:text-accent transition-colors mb-8">
+      <ArrowLeft size={16} /> Back to Projects
+    </a>
+
+    <div class="space-y-4 mb-12">
+      <h1 class="text-4xl md:text-5xl font-bold text-text">{project.title}</h1>
+      <p class="text-xl text-muted font-light">{project.tagline}</p>
+
+      <div class="flex flex-wrap gap-4 pt-4">
+        {project.links.live && (
+          <a
+            href={project.links.live}
+            target="_blank"
+            class="flex items-center gap-2 px-5 py-2 bg-accent text-white border-[2px] border-border font-medium hover:opacity-90 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.2)] dark:hover:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.15)]"
+          >
+            <ExternalLink size={18} /> Visit Site
+          </a>
+        )}
+        {project.links.repo && (
+          <a
+            href={project.links.repo}
+            target="_blank"
+            class="flex items-center gap-2 px-5 py-2 border-[2px] border-border font-medium hover:bg-surface shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.2)] dark:hover:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.15)]"
+          >
+            <Github size={18} /> View Code
+          </a>
+        )}
+      </div>
+    </div>
+
+    <div class="overflow-hidden border-[2px] border-border mb-16 shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.1)]">
+      <img src={project.images[0]} alt={project.title} class="w-full h-auto" />
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-12">
+      <div class="md:col-span-2 space-y-12">
+        <section>
+          <h2 class="text-2xl font-bold mb-4">Overview</h2>
+          <p class="text-muted leading-loose text-lg">{project.description}</p>
+        </section>
+
+        <section>
+          <h2 class="text-2xl font-bold mb-4">Key Features & Architecture</h2>
+          <ul class="space-y-4">
+            {project.fullDescription.map((point) => (
+              <li class="flex gap-3 text-muted leading-relaxed">
+                <span class="text-accent mt-1.5">•</span>
+                <span>{point}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {project.images.slice(1).map((img) => (
+          <div class="overflow-hidden border-[2px] border-border mt-8 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]">
+            <img src={img} alt="Screenshot" class="w-full" />
+          </div>
+        ))}
+      </div>
+
+      <div class="md:col-span-1">
+        <div class="bg-surface p-6 border-[2px] border-border sticky top-24 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]">
+          <h3 class="font-bold mb-4 flex items-center gap-2">
+            <Tag size={18} /> Technologies
+          </h3>
+          <div class="flex flex-wrap gap-2">
+            {project.tags.map((tag) => (
+              <span class="px-3 py-1.5 bg-bg border-[2px] border-border text-sm text-muted shadow-[2px_2px_0px_0px_rgba(0,0,0,0.1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,0.1)]">{tag}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>

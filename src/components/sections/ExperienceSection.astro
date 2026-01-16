@@ -1,0 +1,25 @@
+---
+import siteData from '../../data/siteData.json';
+---
+
+<section class="py-20 border-t-[2px] border-border" id="experience">
+	<div class="grid md:grid-cols-3 gap-12">
+		<div class="md:col-span-1">
+			<h2 class="text-3xl font-bold mb-4">Experience</h2>
+			<p class="text-muted leading-relaxed">A timeline of leadership and engineering.</p>
+		</div>
+		<div class="md:col-span-2 space-y-12" role="list">
+			{siteData.experience.map((exp) => (
+				<article class="relative pl-8 border-l-[2px] border-border hover:border-accent/50 transition-colors duration-300 group" role="listitem">
+					<span class="absolute -left-[10px] top-2 w-5 h-5 bg-accent border-[2px] border-bg group-hover:border-accent/20 transition-all duration-300" aria-hidden="true"></span>
+					<h3 class="text-xl font-bold mb-2 group-hover:text-accent transition-colors">{exp.role}</h3>
+					<div class="flex flex-col sm:flex-row sm:justify-between gap-2 text-sm text-muted mb-3 font-mono">
+						<span class="font-semibold">{exp.company}</span>
+						<time>{exp.period}</time>
+					</div>
+					<p class="text-muted leading-relaxed">{exp.desc}</p>
+				</article>
+			))}
+		</div>
+	</div>
+</section>

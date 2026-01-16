@@ -1,0 +1,22 @@
+---
+interface Props {
+  name: string; // correlates to filename in /public/icons/
+  size?: string;
+  class?: string;
+}
+
+const { name, size = "24", class: className } = Astro.props;
+
+const iconPath = `/icons/${name}.svg`;
+---
+
+<img 
+  src={iconPath} 
+  alt={`Icon for ${name}`}
+  width={size} 
+  height={size}
+  class={`inline-block ${className}`}
+  loading="eager"
+  decoding="async"
+  onerror="this.style.display='none'"
+/>

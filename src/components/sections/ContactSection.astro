@@ -1,0 +1,97 @@
+---
+import { Mail } from 'lucide-react';
+import CopyButton from '../ui/CopyButton';
+import CryptoDonationButton from '../ui/CryptoDonationButton';
+import SocialIcon from '../SocialIcon.astro';
+import ContactForm from '../features/ContactForm';
+import siteData from '../../data/siteData.json';
+---
+
+<section class="py-20 border-t-[2px] border-border" id="contact">
+	<div class="mb-12">
+		<h2 class="text-3xl font-bold mb-3">Let's Build Something</h2>
+		<p class="text-muted max-w-2xl">
+			I am available for contract work and custom software development. Let's discuss your project and create something superb.
+		</p>
+	</div>
+
+	<div class="grid md:grid-cols-2 gap-8">
+		<div class="space-y-6">
+			<div>
+				<h3 class="text-lg font-semibold mb-4 text-text">Get in Touch</h3>
+				<div class="space-y-3">
+					<div class="flex items-center justify-between p-4 bg-surface border-[2px] border-border hover:border-accent/50 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]">
+						<div class="flex items-center gap-3">
+							<Mail className="text-accent flex-shrink-0" size={20} aria-hidden="true" />
+							<a href={`mailto:${siteData.email}`} class="text-text hover:text-accent transition-colors font-medium text-sm" aria-label={`Send email to ${siteData.email}`}>
+								{siteData.email}
+							</a>
+						</div>
+						<CopyButton text={siteData.email} client:load />
+					</div>
+				</div>
+			</div>
+
+			<div>
+				<h3 class="text-lg font-semibold mb-4 text-text">Connect on Socials</h3>
+				<div class="grid grid-cols-2 gap-3" role="list">
+					{siteData.socials.map((social) => (
+						<a
+							href={social.url}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="flex items-center gap-2 px-4 py-3 bg-surface border-[2px] border-border hover:border-accent/50 hover:bg-surface/80 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] dark:hover:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.15)]"
+							aria-label={`Visit ${social.name} profile`}
+							role="listitem"
+						>
+							<SocialIcon icon={social.icon} size={18} />
+							<span class="font-medium text-sm">{social.name}</span>
+						</a>
+					))}
+				</div>
+			</div>
+
+			{siteData.support && siteData.support.length > 0 && (
+				<div>
+					<h3 class="text-lg font-semibold mb-4 text-text">Support my work</h3>
+					<div class="grid grid-cols-2 gap-3" role="list">
+						{siteData.support.map((support) => (
+							<a
+								href={support.url}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="flex items-center gap-2 px-4 py-3 bg-surface border-[2px] border-border hover:border-accent/50 hover:bg-surface/80 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] dark:hover:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.15)]"
+								aria-label={`Support on ${support.name}`}
+								role="listitem"
+							>
+								<SocialIcon icon={support.icon} size={18} />
+								<span class="font-medium text-sm">{support.name}</span>
+							</a>
+						))}
+					</div>
+				</div>
+			)}
+
+			{siteData.crypto && siteData.crypto.length > 0 && (
+				<div>
+					<h3 class="text-lg font-semibold mb-4 text-text">Crypto donations</h3>
+					<div class="flex flex-wrap gap-3" role="list">
+						{siteData.crypto.map((crypto) => (
+							<CryptoDonationButton
+								address={crypto.address}
+								name={crypto.name}
+								icon={crypto.icon}
+								client:load
+							/>
+						))}
+					</div>
+				</div>
+			)}
+		</div>
+
+		<div>
+			<h3 class="text-lg font-semibold mb-4 text-text">Send a Message</h3>
+			<ContactForm client:load />
+		</div>
+	</div>
+</section>

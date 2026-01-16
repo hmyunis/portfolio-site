@@ -1,0 +1,39 @@
+---
+import { Github, Linkedin, MessageCircle, Twitter, Coffee } from 'lucide-react';
+
+interface Props {
+  icon: string;
+  size?: number;
+  class?: string;
+}
+
+const { icon, size = 18, class: className = '' } = Astro.props;
+const iconName = icon.toLowerCase();
+const iconClass = `text-accent flex-shrink-0 ${className}`;
+---
+
+{iconName === 'kofi' ? (
+  <svg
+    class={iconClass}
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    aria-hidden="true"
+  >
+    <path d="M23.881 8.817c-.095-1.708-.8-3.174-2.087-4.17-1.238-1.013-2.85-1.523-4.59-1.523H7.029C5.35 3.124 3.92 3.635 2.7 4.63 1.52 5.644.88 7.1.785 8.817v6.366c.095 1.708.8 3.174 2.087 4.17 1.238 1.013 2.85 1.523 4.59 1.523h9.175c1.679 0 3.109-.511 4.33-1.506 1.18-1.014 1.82-2.47 1.915-4.187V8.817zm-2.176 6.366c-.06 1.08-.525 2.007-1.26 2.64-.735.633-1.68.95-2.71.95H7.029c-1.03 0-1.975-.317-2.71-.95-.735-.633-1.2-1.56-1.26-2.64V8.817c.06-1.08.525-2.007 1.26-2.64.735-.633 1.68-.95 2.71-.95h9.706c1.03 0 1.975.317 2.71.95.735.633 1.2 1.56 1.26 2.64v6.366z"/>
+    <path d="M12.57 7.706v8.588h1.428V7.706H12.57zm-2.857 2.143v4.303h1.428V9.849H9.713zm5.714 0v4.303h1.428V9.849h-1.428z"/>
+  </svg>
+) : iconName === 'buymeacoffee' ? (
+  <Coffee className={iconClass} size={size} />
+) : iconName === 'github' ? (
+  <Github className={iconClass} size={size} />
+) : iconName === 'linkedin' ? (
+  <Linkedin className={iconClass} size={size} />
+) : iconName === 'telegram' ? (
+  <MessageCircle className={iconClass} size={size} />
+) : iconName === 'x' ? (
+  <Twitter className={iconClass} size={size} />
+) : (
+  <Github className={iconClass} size={size} />
+)}

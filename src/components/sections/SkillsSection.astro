@@ -1,0 +1,36 @@
+---
+import TechIcon from '../TechIcon';
+import siteData from '../../data/siteData.json';
+---
+
+<section class="py-20 border-t-[2px] border-border" id="skills">
+	<div class="mb-12">
+		<h2 class="text-3xl font-bold mb-3">Technical Arsenal</h2>
+		<p class="text-muted">Technologies I work with regularly</p>
+	</div>
+			<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" role="list">
+				{siteData.skills.forte.map((skill) => (
+					<div class="group flex flex-col items-center justify-center gap-3 p-6 border-[2px] border-border bg-surface/50 hover:bg-surface hover:border-accent/50 transition-all duration-300 card-hover cursor-pointer" role="listitem" tabindex="0" aria-label={`${skill.name} skill`}>
+				<div class="text-accent group-hover:scale-110 transition-transform duration-300">
+					<TechIcon name={skill.name} />
+				</div>
+				<span class="font-medium text-sm text-center">{skill.name}</span>
+			</div>
+		))}
+	</div>
+</section>
+
+<section class="py-20 border-t-[2px] border-border">
+	<div class="mb-12">
+		<h2 class="text-3xl font-bold mb-3">Additional Exposure</h2>
+		<p class="text-muted">Technologies I've worked with and continue to explore</p>
+	</div>
+	<div class="flex flex-wrap gap-3" role="list">
+		{siteData.skills.exposure.map((tech) => (
+			<div class="group flex items-center gap-2 px-4 py-2 border-[2px] border-border bg-surface/30 hover:bg-surface hover:border-accent/50 transition-all duration-300 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] dark:hover:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.15)]" role="listitem">
+				<TechIcon name={tech} />
+				<span class="font-medium text-sm">{tech}</span>
+			</div>
+		))}
+	</div>
+</section>

@@ -1,0 +1,46 @@
+---
+import { Download, Github, Linkedin } from 'lucide-react';
+import siteData from '../../data/siteData.json';
+---
+
+<section class="py-20 md:py-32 space-y-10" id="about">
+	<div class="space-y-6">
+		<h1 class="text-5xl md:text-7xl font-bold tracking-tight">{siteData.name}</h1>
+		<p class="text-xl md:text-2xl text-muted font-light max-w-2xl leading-relaxed">
+			{siteData.role}. <br> {siteData.philosophy.headline}.
+		</p>
+		<p class="text-muted max-w-2xl leading-relaxed mt-4">
+			{siteData.philosophy.text}
+		</p>
+	</div>
+
+	<div class="flex flex-wrap gap-4">
+		<a
+			href={siteData.resumeUrl}
+			target="_blank"
+			rel="noopener noreferrer"
+			class="flex items-center gap-2 px-6 py-3 bg-text text-bg font-semibold border-[2px] border-border hover:opacity-90 transition-all shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] dark:hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.15)]"
+			aria-label="Download resume"
+		>
+			<Download size={18} aria-hidden="true" /> Download CV
+		</a>
+		<a
+			href={siteData.socials[0].url}
+			target="_blank"
+			rel="noopener noreferrer"
+			class="flex items-center gap-2 px-6 py-3 border-[2px] border-border hover:bg-surface transition-all hover:border-accent/50 shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] dark:hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.15)]"
+			aria-label="Visit GitHub profile"
+		>
+			<Github size={18} aria-hidden="true" /> GitHub
+		</a>
+		<a
+			href={siteData.socials[1].url}
+			target="_blank"
+			rel="noopener noreferrer"
+			class="flex items-center gap-2 px-6 py-3 border-[2px] border-border hover:bg-surface transition-all hover:border-accent/50 shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] dark:hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.15)]"
+			aria-label="Visit LinkedIn profile"
+		>
+			<Linkedin size={18} aria-hidden="true" /> LinkedIn
+		</a>
+	</div>
+</section>
