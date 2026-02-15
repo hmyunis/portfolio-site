@@ -23,7 +23,9 @@ pnpm-debug.log*
 
 # personal data files
 src/data/siteData.json
+src/data/projects.ts
 src/data/projects.json
+src/assets/works/
 
 # macOS-specific files
 .DS_Store

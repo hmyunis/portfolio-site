@@ -16,6 +16,7 @@ export interface Skill {
 
 export interface Experience {
     company: string;
+    companyUrl?: string;
     role: string;
     period: string;
     desc: string;
@@ -51,7 +52,8 @@ export interface Project {
     tagline: string;
     description: string;
     fullDescription: string[];
-    images: string[];
+    thumbnail: string;
+    demoGif: string;
     tags: string[];
     links: {
         live: string | null;

@@ -21,12 +21,12 @@ else
 fi
 
 # Copy projects file
-if [ ! -f src/data/projects.json ]; then
-    echo "📝 Creating projects.json from example..."
-    cp src/data/projects.example.json src/data/projects.json
-    echo "⚠️  Don't forget to update src/data/projects.json with your projects"
+if [ ! -f src/data/projects.ts ]; then
+    echo "📝 Creating projects.ts from example..."
+    cp src/data/projects.example.ts src/data/projects.ts
+    echo "⚠️  Don't forget to update src/data/projects.ts with your projects"
 else
-    echo "✓ projects.json already exists"
+    echo "✓ projects.ts already exists"
 fi
 
 echo ""
@@ -35,5 +35,5 @@ echo ""
 echo "Next steps:"
 echo "1. Edit .env and add your Web3Forms access key"
 echo "2. Edit src/data/siteData.json with your personal information"
-echo "3. Edit src/data/projects.json with your projects"
+echo "3. Edit src/data/projects.ts with your projects"
 echo "4. Run 'npm run dev' to start the development server"

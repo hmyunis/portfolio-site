@@ -47,7 +47,7 @@ chmod +x setup.sh && ./setup.sh
 # Or manually copy the example files:
 cp .env.example .env
 cp src/data/siteData.example.json src/data/siteData.json
-cp src/data/projects.example.json src/data/projects.json
+cp src/data/projects.example.ts src/data/projects.ts
 ```
 
 ### Development
@@ -85,7 +85,7 @@ src/
 │   ├── sections/     # Page sections (Hero, Experience, Projects, etc.)
 │   └── ui/          # Reusable UI components (ThemeToggle, ProjectCard)
 ├── config/          # Constants and configuration
-├── data/            # JSON data files (siteData, projects)
+├── data/            # Data files and templates (siteData.json, projects.ts, *.example.*)
 ├── layouts/         # Page layouts
 ├── pages/           # Route pages
 ├── styles/          # Global CSS
@@ -106,13 +106,13 @@ src/
 2. **Personal Data**: Copy the example data files and fill them with your information:
    ```bash
    cp src/data/siteData.example.json src/data/siteData.json
-   cp src/data/projects.example.json src/data/projects.json
+   cp src/data/projects.example.ts src/data/projects.ts
    ```
    Then edit these files with your personal information, projects, and experience.
 
 3. **Site Config**: Modify `src/config/constants.ts` for site-wide settings (URL, theme color, etc.).
 
-**Note**: The actual data files (`siteData.json` and `projects.json`) are gitignored to protect your personal information. Only the example files are tracked in the repository.
+**Note**: The actual data files (`siteData.json` and `projects.ts`) are gitignored to protect your personal information. Only the example files are tracked in the repository.
 
 ## License
 

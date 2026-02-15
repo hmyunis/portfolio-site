@@ -57,6 +57,7 @@
     "experience": [
         {
             "company": "Example Company",
+            "companyUrl": "https://example.com",
             "role": "Software Engineer",
             "period": "Jan 2023 - Present",
             "desc": "Describe your role and key achievements at this company."

@@ -21,12 +21,12 @@ if (-not (Test-Path src/data/siteData.json)) {
 }
 
 # Copy projects file
-if (-not (Test-Path src/data/projects.json)) {
-    Write-Host "📝 Creating projects.json from example..." -ForegroundColor Yellow
-    Copy-Item src/data/projects.example.json src/data/projects.json
-    Write-Host "⚠️  Don't forget to update src/data/projects.json with your projects" -ForegroundColor Yellow
+if (-not (Test-Path src/data/projects.ts)) {
+    Write-Host "📝 Creating projects.ts from example..." -ForegroundColor Yellow
+    Copy-Item src/data/projects.example.ts src/data/projects.ts
+    Write-Host "⚠️  Don't forget to update src/data/projects.ts with your projects" -ForegroundColor Yellow
 } else {
-    Write-Host "✓ projects.json already exists" -ForegroundColor Green
+    Write-Host "✓ projects.ts already exists" -ForegroundColor Green
 }
 
 Write-Host ""
@@ -35,5 +35,5 @@ Write-Host ""
 Write-Host "Next steps:" -ForegroundColor Cyan
 Write-Host "1. Edit .env and add your Web3Forms access key"
 Write-Host "2. Edit src/data/siteData.json with your personal information"
-Write-Host "3. Edit src/data/projects.json with your projects"
+Write-Host "3. Edit src/data/projects.ts with your projects"
 Write-Host "4. Run 'npm run dev' to start the development server"

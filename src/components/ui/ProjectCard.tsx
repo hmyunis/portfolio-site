@@ -1,28 +1,15 @@
-import { useState } from 'react';
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { STYLES, combineClasses } from '../../utils/styling';
 
 interface ProjectProps {
     id: string;
     title: string;
     tagline: string;
-    images: string[];
+    thumbnail: string;
     tags: string[];
 }
 
-export default function ProjectCard({ id, title, tagline, images, tags }: ProjectProps) {
-    const [currentImg, setCurrentImg] = useState(0);
-
-    const nextImg = (e: React.MouseEvent) => {
-        e.preventDefault();
-        setCurrentImg((prev) => (prev + 1) % images.length);
-    };
-
-    const prevImg = (e: React.MouseEvent) => {
-        e.preventDefault();
-        setCurrentImg((prev) => (prev - 1 + images.length) % images.length);
-    };
-
+export default function ProjectCard({ id, title, tagline, thumbnail, tags }: ProjectProps) {
     return (
         <a
             href={`/projects/${id}`}
@@ -36,33 +23,12 @@ export default function ProjectCard({ id, title, tagline, images, tags }: Projec
         >
             <div className="relative aspect-video overflow-hidden bg-surface">
                 <img
-                    src={images[currentImg]}
+                    src={thumbnail}
                     alt={title}
                     loading="lazy"
                     decoding="async"
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="w-full h-full object-fill transition-transform duration-500 group-hover:scale-105"
                 />
-
-                {images.length > 1 && (
-                    <div className="absolute inset-0 flex items-center justify-between p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button
-                            onClick={prevImg}
-                            className="p-2 bg-black/80 text-white border-[2px] border-white hover:bg-accent/80 shadow-[3px_3px_0px_0px_rgba(255,255,255,0.3)]"
-                            type="button"
-                            aria-label="Previous image"
-                        >
-                            <ChevronLeft size={20} aria-hidden="true" />
-                        </button>
-                        <button
-                            onClick={nextImg}
-                            className="p-2 bg-black/80 text-white border-[2px] border-white hover:bg-accent/80 shadow-[3px_3px_0px_0px_rgba(255,255,255,0.3)]"
-                            type="button"
-                            aria-label="Next image"
-                        >
-                            <ChevronRight size={20} aria-hidden="true" />
-                        </button>
-                    </div>
-                )}
             </div>
 
             <div className="p-6">
