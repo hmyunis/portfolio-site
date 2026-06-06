@@ -1,5 +1,6 @@
 import { ArrowRight } from 'lucide-react';
 import { STYLES, combineClasses } from '../../utils/styling';
+import LoadedImage from './LoadedImage';
 
 interface ProjectProps {
     id: string;
@@ -22,7 +23,7 @@ export default function ProjectCard({ id, title, tagline, thumbnail, tags }: Pro
             aria-label={`View project: ${title}`}
         >
             <div className="relative aspect-video overflow-hidden bg-surface">
-                <img
+                <LoadedImage
                     src={thumbnail}
                     alt={title}
                     loading="lazy"

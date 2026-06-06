@@ -229,6 +229,59 @@ html {
     }
 }
 
+.image-load-shimmer {
+    overflow: hidden;
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            color-mix(in srgb, var(--color-accent) 28%, transparent) 28%,
+            color-mix(in srgb, var(--color-text) 16%, transparent) 50%,
+            color-mix(in srgb, var(--color-accent) 28%, transparent) 72%,
+            transparent 100%
+        ),
+        repeating-linear-gradient(
+            -45deg,
+            color-mix(in srgb, var(--color-surface) 92%, var(--color-bg)) 0 10px,
+            color-mix(in srgb, var(--color-bg) 88%, var(--color-surface)) 10px 20px
+        );
+    background-size: 220% 100%, 28px 28px;
+    animation: shimmer 1.35s linear infinite;
+}
+
+.image-load-shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: 2px solid color-mix(in srgb, var(--color-border) 18%, transparent);
+    pointer-events: none;
+}
+
+.dark .image-load-shimmer {
+    background:
+        linear-gradient(
+            90deg,
+            transparent 0%,
+            color-mix(in srgb, var(--color-accent) 34%, transparent) 28%,
+            color-mix(in srgb, var(--color-text) 14%, transparent) 50%,
+            color-mix(in srgb, var(--color-accent) 34%, transparent) 72%,
+            transparent 100%
+        ),
+        repeating-linear-gradient(
+            -45deg,
+            color-mix(in srgb, var(--color-surface) 88%, var(--color-bg)) 0 10px,
+            color-mix(in srgb, var(--color-bg) 78%, var(--color-surface)) 10px 20px
+        );
+    background-size: 220% 100%, 28px 28px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .image-load-shimmer {
+        animation: none;
+        background-position: 50% 50%;
+    }
+}
+
 .animate-shimmer-button {
     position: relative;
 }
