@@ -19,14 +19,14 @@ import siteData from '../../data/siteData.json';
 								href={exp.companyUrl}
 								target="_blank"
 								rel="noopener noreferrer"
-								class="font-semibold hover:text-accent transition-colors"
+								class="font-semibold hover:text-accent transition-colors sm:max-w-[30rem]"
 							>
 								{exp.company}
 							</a>
 						) : (
-							<span class="font-semibold">{exp.company}</span>
+							<span class="font-semibold sm:max-w-[30rem]">{exp.company}</span>
 						)}
-						<time>{exp.period}</time>
+						<time class="shrink-0 whitespace-nowrap">{exp.period}</time>
 					</div>
 					<p class="text-muted leading-relaxed">{exp.desc}</p>
 				</article>
