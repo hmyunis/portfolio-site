@@ -26,6 +26,7 @@ export interface CryptoDonation {
     name: string;
     address: string;
     icon: string;
+    network?: string;
 }
 
 export interface SiteData {

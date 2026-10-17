@@ -1,5 +1,5 @@
 ---
-import ProjectCard from '../ui/ProjectCard';
+import PaginatedProjects from '../ui/PaginatedProjects';
 import { ArrowRight } from 'lucide-react';
 import projects from '../../data/projects';
 ---
@@ -21,16 +21,5 @@ import projects from '../../data/projects';
 		</a>
 	</div>
 
-	<div class="grid md:grid-cols-2 gap-8" role="list">
-		{projects.map((project) => (
-			<ProjectCard
-				client:idle
-				id={project.id}
-				title={project.title}
-				tagline={project.tagline}
-				thumbnail={project.thumbnail}
-				tags={project.tags}
-			/>
-		))}
-	</div>
+	<PaginatedProjects client:load projects={projects} itemsPerPage={6} />
 </section>

@@ -5,7 +5,7 @@ dist/
 .cursor/
 .vscode/
 
-public/Hamdi_CV.pdf
+public/Hamdi_Resume.pdf
 
 # dependencies
 node_modules/
