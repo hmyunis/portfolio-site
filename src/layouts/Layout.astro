@@ -1,6 +1,5 @@
 ---
 import Navbar from '../components/Navbar.astro';
-import ScrollProgress from '../components/ui/ScrollProgress';
 import '../styles/global.css';
 import siteData from '../data/siteData.json';
 import { SITE_CONFIG, EXTERNAL_LINKS } from '../config/constants';
@@ -60,16 +59,18 @@ const twitterHandle = xSocial ? xSocial.url.replace(/https?:\/\/(www\.)?(x\.com|
     <meta name="linkedin:owner" content={siteData.socials.find(s => s.name === 'LinkedIn')?.url || ''} />
     
     <link rel="canonical" href={currentUrl} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     
     <link rel="preconnect" href={EXTERNAL_LINKS.fonts.google} />
     <link rel="preconnect" href={EXTERNAL_LINKS.fonts.googleStatic} crossorigin />
-    <link href={EXTERNAL_LINKS.fonts.inter} rel="stylesheet" />
-    
-    <link rel="preconnect" href={EXTERNAL_LINKS.api.web3forms} />
+    <link rel="preload" href={EXTERNAL_LINKS.fonts.inter} as="style" />
+    <link rel="stylesheet" href={EXTERNAL_LINKS.fonts.inter} media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href={EXTERNAL_LINKS.fonts.inter} /></noscript>
     <link rel="dns-prefetch" href={EXTERNAL_LINKS.api.web3forms} />
-    <link rel="preconnect" href={EXTERNAL_LINKS.social.github} crossorigin />
-    <link rel="preconnect" href={EXTERNAL_LINKS.social.linkedin} crossorigin />
     
     <script type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
@@ -104,7 +105,19 @@ const twitterHandle = xSocial ? xSocial.url.replace(/https?:\/\/(www\.)?(x\.com|
       Skip to main content
     </a>
     
-    <ScrollProgress client:load />
+    <div id="scroll-progress" class="fixed top-0 left-0 right-0 h-1 bg-accent z-50 origin-left scale-x-0 transition-transform duration-75" role="progressbar" aria-label="Scroll progress"></div>
+    <script is:inline>
+      (() => {
+        const update = () => {
+          const s = document.documentElement.scrollTop || document.body.scrollTop;
+          const h = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+          const el = document.getElementById('scroll-progress');
+          if (el) el.style.transform = `scaleX(${h > 0 ? s / h : 0})`;
+        };
+        window.addEventListener('scroll', update, { passive: true });
+        update();
+      })();
+    </script>
     <Navbar />
     
     <main id="main-content">

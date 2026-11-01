@@ -25,7 +25,9 @@ pnpm-debug.log*
 src/data/siteData.json
 src/data/projects.ts
 src/data/projects.json
+src/data/achievements.ts
 src/assets/works/
+src/assets/certs/
 ABOUTME.md
 PORTFOLIO.md
 maintenance.html

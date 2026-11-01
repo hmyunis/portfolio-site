@@ -18,8 +18,8 @@ import { NAVIGATION_LINKS } from '../config/constants';
           </a>
         ))}
       </div>
-      <MobileMenuWrapper client:load />
-      <ThemeToggle client:load />
+      <MobileMenuWrapper client:media="(max-width: 768px)" />
+      <ThemeToggle client:idle />
     </div>
   </div>
 </nav>

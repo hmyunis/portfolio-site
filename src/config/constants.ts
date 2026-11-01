@@ -28,6 +28,7 @@ export const FORM_CONFIG = {
 export const NAVIGATION_LINKS = [
     { href: "/#about", label: "About", ariaLabel: "About section" },
     { href: "/#projects", label: "Work", ariaLabel: "Projects section" },
+    { href: "/#achievements", label: "Achievements", ariaLabel: "Achievements section" },
     { href: "/#contact", label: "Contact", ariaLabel: "Contact section" },
 ] as const;
 

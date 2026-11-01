@@ -29,6 +29,24 @@ export interface CryptoDonation {
     network?: string;
 }
 
+export interface Achievement {
+    id: string;
+    title: string;
+    issuer: string;
+    issuerUrl?: string;
+    period: string;
+    badge: string;
+    category: 'award' | 'certification' | 'academic' | 'volunteering';
+    description: string;
+    highlights?: string[];
+    credentialUrl?: string;
+    verificationLabel?: string;
+    secondaryUrl?: string;
+    secondaryLabel?: string;
+    image: string;
+    gallery?: string[];
+}
+
 export interface SiteData {
     name: string;
     role: string;
@@ -45,6 +63,7 @@ export interface SiteData {
         exposure: string[];
     };
     experience: Experience[];
+    achievements?: Achievement[];
 }
 
 export interface Project {

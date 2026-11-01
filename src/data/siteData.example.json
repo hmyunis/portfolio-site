@@ -70,5 +70,29 @@
             "period": "Jan 2021 - Dec 2022",
             "desc": "Describe your role and key achievements at this company."
         }
+    ],
+    "achievements": [
+        {
+            "id": "example-award",
+            "title": "Example Competition Winner",
+            "issuer": "Example Foundation",
+            "period": "June 2026",
+            "badge": "National Winner",
+            "category": "award",
+            "description": "1st place winner in national software hackathon.",
+            "credentialUrl": "https://example.com/verify-credential",
+            "verificationLabel": "Verify Credential"
+        },
+        {
+            "id": "example-certification",
+            "title": "Example Professional Certification",
+            "issuer": "Example Organization",
+            "period": "September 2026",
+            "badge": "Verified",
+            "category": "certification",
+            "description": "Completed hands-on curriculum in distributed cloud systems.",
+            "credentialUrl": "https://example.com/verify-certificate",
+            "verificationLabel": "Verify Certificate"
+        }
     ]
 }

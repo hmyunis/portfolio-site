@@ -1,0 +1,16 @@
+---
+import achievements from '../../data/achievements';
+import AchievementsList from '../ui/AchievementsList';
+---
+
+<section class="py-20 border-t-[2px] border-border" id="achievements">
+	<div class="mb-12">
+		<h2 class="text-3xl font-bold mb-2">Honors & Achievements</h2>
+		<p class="text-muted max-w-2xl leading-relaxed">
+			National competition awards, verified technical certifications, leadership fellowships, and community impact.
+		</p>
+	</div>
+
+	<AchievementsList client:visible achievements={achievements} />
+</section>
+
