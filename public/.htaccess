@@ -1,0 +1,6 @@
+# Plain Apache hosts: serve the site's own 404 page, with a 404 status, for unknown URLs.
+#
+# On Plesk this file is usually NOT enough: nginx answers unknown URLs before Apache
+# reads .htaccess. Use the generated dist-plesk/error_docs/not_found.html instead
+# (see "404 page" in the README). Keeping this line is harmless.
+ErrorDocument 404 /404.html

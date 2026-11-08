@@ -1,0 +1,30 @@
+---
+import { SHEETS, sheetNumber, type SheetId } from '../config/constants';
+
+interface Props {
+  id: SheetId;
+  class?: string;
+}
+
+const { id, class: className } = Astro.props;
+const sheet = SHEETS.find((item) => item.id === id);
+---
+
+<section
+  id={id}
+  class:list={['frame', 'sheet-section', className]}
+  aria-labelledby={`${id}-title`}
+  data-sheet
+  data-sheet-number={sheetNumber(id)}
+  data-sheet-label={sheet?.label}
+>
+  <div class="sheet-box">
+    <slot />
+  </div>
+</section>
+
+<style>
+  .sheet-section {
+    margin-top: clamp(2.5rem, 6vw, 4.5rem);
+  }
+</style>

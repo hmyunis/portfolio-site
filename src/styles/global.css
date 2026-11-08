@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* Self-hosted fonts: no third-party connection, and browsers only fetch the
+   unicode-range subsets a page actually uses (Latin for this site). */
+@import "@fontsource-variable/archivo/wdth.css";
+@import "@fontsource/ibm-plex-mono/latin-400.css";
+@import "@fontsource/ibm-plex-mono/latin-500.css";
+@import "@fontsource/ibm-plex-mono/latin-600.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
     --color-bg: var(--color-bg);
     --color-text: var(--color-text);
@@ -12,35 +21,81 @@
 :root {
     --color-bg: #ffffff;
     --color-text: #111827;
-    --color-muted: #6b7280;
+    --color-muted: #5b6472;
     --color-border: #111827;
-    --color-accent: #ef4444;
+    --color-accent: #e5352f;
     --color-surface: #f3f4f6;
+    --color-on-accent: #ffffff;
 
-    --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    --font-mono: "Menlo", "Monaco", "Consolas", "Courier New", monospace;
+    --hair: color-mix(in srgb, var(--color-text) 14%, transparent);
+    --btn-shadow: color-mix(in srgb, var(--color-text) 22%, transparent);
+    --shadow-thick: 8px 8px 0 0 rgba(0, 0, 0, 0.15);
 
-    --border-width: 2px;
-    --shadow-thick: 8px 8px 0px 0px rgba(0, 0, 0, 0.15);
+    --font-display: "Archivo Variable", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+    --font-sans: var(--font-display);
+    --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+
+    /* Shared page frame, matching the hero sheet. */
+    --frame-max: 1680px;
+    --frame-gutter: clamp(0.75rem, 1.6vw, 1.5rem);
+    --pad: clamp(1rem, 2.2vw, 2rem);
+    --nav-h: 4rem;
+
+    --ease: cubic-bezier(0.7, 0, 0.2, 1);
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+    color-scheme: light;
 }
 
 .dark {
     --color-bg: #0f172a;
     --color-text: #f8fafc;
-    --color-muted: #94a3b8;
+    --color-muted: #9aa8bc;
     --color-border: #f8fafc;
     --color-accent: #3b82f6;
     --color-surface: #1e293b;
+    --shadow-thick: 8px 8px 0 0 rgba(255, 255, 255, 0.1);
 
-    --shadow-thick: 8px 8px 0px 0px rgba(255, 255, 255, 0.1);
+    color-scheme: dark;
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--nav-h) + 0.75rem);
+    -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }
 
 body {
+    min-width: 320px;
     background-color: var(--color-bg);
+    /* Static drafting grid. Painted once; the old animated version repainted every frame. */
+    background-image:
+        linear-gradient(var(--hair) 1px, transparent 1px),
+        linear-gradient(90deg, var(--hair) 1px, transparent 1px);
+    background-size: 48px 48px;
+    background-position: -1px -1px;
     color: var(--color-text);
     font-family: var(--font-sans);
-    transition: background-color 0.3s, color 0.3s;
+    font-stretch: 100%;
     line-height: 1.6;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.dark body {
+    --hair: color-mix(in srgb, var(--color-text) 6%, transparent);
 }
 
 h1,
@@ -48,117 +103,12 @@ h2,
 h3,
 h4 {
     font-weight: 700;
-    letter-spacing: -0.025em;
-    line-height: 1.2;
-}
-
-h1 {
-    background: linear-gradient(135deg, var(--color-text) 0%, var(--color-muted) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.dark h1 {
-    background: linear-gradient(135deg, var(--color-text) 0%, var(--color-accent) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
 }
 
 p {
-    line-height: 1.7;
-}
-
-a {
-    transition: all 0.2s ease;
-}
-
-button,
-[type="button"],
-[type="submit"] {
-    transition: all 0.2s ease;
-    cursor: pointer;
-}
-
-button:hover,
-[type="button"]:hover,
-[type="submit"]:hover {
-    transform: translateY(-1px);
-}
-
-button:active,
-[type="button"]:active,
-[type="submit"]:active {
-    transform: translateY(0);
-}
-
-@-webkit-keyframes bg-scrolling-reverse {
-    100% {
-        background-position: 50px 50px;
-    }
-}
-@-moz-keyframes bg-scrolling-reverse {
-    100% {
-        background-position: 50px 50px;
-    }
-}
-@-o-keyframes bg-scrolling-reverse {
-    100% {
-        background-position: 50px 50px;
-    }
-}
-@keyframes bg-scrolling-reverse {
-    100% {
-        background-position: 50px 50px;
-    }
-}
-@-webkit-keyframes bg-scrolling {
-    0% {
-        background-position: 50px 50px;
-    }
-}
-@-moz-keyframes bg-scrolling {
-    0% {
-        background-position: 50px 50px;
-    }
-}
-@-o-keyframes bg-scrolling {
-    0% {
-        background-position: 50px 50px;
-    }
-}
-@keyframes bg-scrolling {
-    0% {
-        background-position: 50px 50px;
-    }
-}
-
-body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAIAAACRXR/mAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAABnSURBVHja7M5RDYAwDEXRDgmvEocnlrQS2SwUFST9uEfBGWs9c97nbGtDcquqiKhOImLs/UpuzVzWEi1atGjRokWLFi1atGjRokWLFi1atGjRokWLFi1af7Ukz8xWp8z8AAAA//8DAJ4LoEAAlL1nAAAAAElFTkSuQmCC")
-        repeat 0 0;
-    opacity: 0.48;
-    -webkit-animation: bg-scrolling-reverse 0.92s infinite;
-    -moz-animation: bg-scrolling-reverse 0.92s infinite;
-    -o-animation: bg-scrolling-reverse 0.92s infinite;
-    animation: bg-scrolling-reverse 0.92s infinite;
-    -webkit-animation-timing-function: linear;
-    -moz-animation-timing-function: linear;
-    -o-animation-timing-function: linear;
-    animation-timing-function: linear;
-}
-
-.dark body::before {
-    opacity: 0.1;
-}
-
-html {
-    scroll-behavior: smooth;
+    line-height: 1.65;
 }
 
 *:focus-visible {
@@ -166,34 +116,9 @@ html {
     outline-offset: 3px;
 }
 
-.card-hover {
-    transition: all 0.3s ease;
-    border-width: var(--border-width);
-    box-shadow: var(--shadow-thick);
-}
-
-.card-hover:hover {
-    transform: translateY(-4px);
-    box-shadow: 8px 8px 0px 0px rgba(0, 0, 0, 0.2);
-}
-
-.dark .card-hover:hover {
-    box-shadow: 8px 8px 0px 0px rgba(255, 255, 255, 0.15);
-}
-
-.gradient-accent {
-    background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-accent) 100%);
-}
-
-.glass {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.dark .glass {
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+::selection {
+    background: var(--color-accent);
+    color: var(--color-on-accent);
 }
 
 .sr-only {
@@ -208,124 +133,101 @@ html {
     border-width: 0;
 }
 
-.sr-only:focus,
-.focus\:not-sr-only:focus {
-    position: static;
-    width: auto;
-    height: auto;
-    padding: inherit;
-    margin: inherit;
-    overflow: visible;
-    clip: auto;
-    white-space: normal;
+/* ---------- Shared drawing-sheet primitives ---------- */
+
+.frame {
+    width: 100%;
+    max-width: calc(var(--frame-max) + 2 * var(--frame-gutter));
+    margin-inline: auto;
+    padding-inline: var(--frame-gutter);
 }
 
-@keyframes shimmer {
-    0% {
-        background-position: -200% 0;
-    }
-    100% {
-        background-position: 200% 0;
-    }
-}
-
-.image-load-shimmer {
-    overflow: hidden;
-    background:
-        linear-gradient(
-            90deg,
-            transparent 0%,
-            color-mix(in srgb, var(--color-accent) 28%, transparent) 28%,
-            color-mix(in srgb, var(--color-text) 16%, transparent) 50%,
-            color-mix(in srgb, var(--color-accent) 28%, transparent) 72%,
-            transparent 100%
-        ),
-        repeating-linear-gradient(
-            -45deg,
-            color-mix(in srgb, var(--color-surface) 92%, var(--color-bg)) 0 10px,
-            color-mix(in srgb, var(--color-bg) 88%, var(--color-surface)) 10px 20px
-        );
-    background-size: 220% 100%, 28px 28px;
-    animation: shimmer 1.35s linear infinite;
-}
-
-.image-load-shimmer::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border: 2px solid color-mix(in srgb, var(--color-border) 18%, transparent);
-    pointer-events: none;
-}
-
-.dark .image-load-shimmer {
-    background:
-        linear-gradient(
-            90deg,
-            transparent 0%,
-            color-mix(in srgb, var(--color-accent) 34%, transparent) 28%,
-            color-mix(in srgb, var(--color-text) 14%, transparent) 50%,
-            color-mix(in srgb, var(--color-accent) 34%, transparent) 72%,
-            transparent 100%
-        ),
-        repeating-linear-gradient(
-            -45deg,
-            color-mix(in srgb, var(--color-surface) 88%, var(--color-bg)) 0 10px,
-            color-mix(in srgb, var(--color-bg) 78%, var(--color-surface)) 10px 20px
-        );
-    background-size: 220% 100%, 28px 28px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .image-load-shimmer {
-        animation: none;
-        background-position: 50% 50%;
-    }
-}
-
-.animate-shimmer-button {
+.sheet-box {
     position: relative;
+    background: var(--color-bg);
+    border: 2px solid var(--color-border);
+    box-shadow: var(--shadow-thick);
+    transition: background-color 0.3s, border-color 0.3s;
 }
 
-.animate-shimmer-button::before {
-    content: "";
-    position: absolute;
-    inset: -2px;
-    border-radius: 0;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(239, 68, 68, 0.8) 25%,
-        rgba(255, 255, 255, 0.9) 50%,
-        rgba(59, 130, 246, 0.8) 75%,
-        transparent 100%
+.mono-label {
+    color: var(--color-muted);
+    font: 500 10.5px/1.2 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+/* Brutalist button shared by every section (the hero has its own copy). */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    min-height: 3rem;
+    padding: 0 1.1rem;
+    background: var(--color-bg);
+    border: 2px solid var(--color-border);
+    box-shadow: 5px 5px 0 0 var(--btn-shadow);
+    color: var(--color-text);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+        transform 0.15s var(--ease-out),
+        box-shadow 0.15s var(--ease-out),
+        background-color 0.15s,
+        color 0.15s;
+}
+.btn:hover {
+    box-shadow: 8px 8px 0 0 var(--color-accent);
+    transform: translate(-3px, -3px);
+}
+.btn:active {
+    box-shadow: 1px 1px 0 0 var(--color-accent);
+    transform: translate(4px, 4px);
+    transition-duration: 0.05s;
+}
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    transform: none;
+}
+.btn--primary {
+    background: var(--color-text);
+    box-shadow: 5px 5px 0 0 var(--color-accent);
+    color: var(--color-bg);
+}
+.btn--sm {
+    min-height: 2.5rem;
+    padding: 0 0.85rem;
+    font-size: 0.85rem;
+    box-shadow: 3px 3px 0 0 var(--btn-shadow);
+}
+.btn--sm:hover {
+    box-shadow: 5px 5px 0 0 var(--color-accent);
+    transform: translate(-2px, -2px);
+}
+
+/* Scroll-triggered reveal. Elements only start hidden once JS has confirmed it can reveal them. */
+.js-reveal [data-reveal] {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+        opacity 0.7s var(--ease-out),
+        transform 0.7s var(--ease-out);
+    transition-delay: calc(var(--d, 0) * 60ms);
+}
+.js-reveal [data-reveal].is-in {
+    opacity: 1;
+    transform: none;
+}
+
+/* Lazy media placeholder: a hatched panel until the image or video paints. */
+.media-ph {
+    background-color: var(--color-surface);
+    background-image: repeating-linear-gradient(
+        -45deg,
+        transparent 0 10px,
+        color-mix(in srgb, var(--color-text) 5%, transparent) 10px 11px
     );
-    background-size: 200% 100%;
-    animation: shimmer 1.5s linear infinite;
-    z-index: 0;
-    pointer-events: none;
-}
-
-.animate-shimmer-button > button {
-    position: relative;
-    z-index: 1;
-}
-
-.dark .animate-shimmer-button::before {
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(59, 130, 246, 0.9) 25%,
-        rgba(255, 255, 255, 0.8) 50%,
-        rgba(239, 68, 68, 0.9) 75%,
-        transparent 100%
-    );
-    background-size: 200% 100%;
-}
-
-.form-alert {
-    background-color: rgb(255, 255, 255) !important;
-}
-
-.dark .form-alert {
-    background-color: transparent !important;
 }

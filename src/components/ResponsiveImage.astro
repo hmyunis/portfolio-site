@@ -1,0 +1,61 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageSource } from '../types';
+
+interface Props {
+  src: ImageSource;
+  alt: string;
+  /** Candidate widths for the srcset (local images only). */
+  widths?: number[];
+  sizes?: string;
+  class?: string;
+  loading?: 'lazy' | 'eager';
+  fetchpriority?: 'high' | 'low' | 'auto';
+  /** Fallback intrinsic size for remote URLs, so the browser can reserve space. */
+  width?: number;
+  height?: number;
+}
+
+const {
+  src,
+  alt,
+  widths = [480, 800, 1200],
+  sizes = '100vw',
+  class: className,
+  loading = 'lazy',
+  fetchpriority,
+  width = 1200,
+  height = 600,
+} = Astro.props;
+
+const isLocal = typeof src !== 'string';
+// Never upscale: drop candidate widths larger than the source.
+const usableWidths = isLocal ? widths.filter((w) => w <= src.width) : [];
+const finalWidths = isLocal && usableWidths.length === 0 ? [src.width] : usableWidths;
+---
+
+{isLocal ? (
+  <Image
+    src={src}
+    alt={alt}
+    widths={finalWidths}
+    sizes={sizes}
+    format="webp"
+    quality={78}
+    loading={loading}
+    decoding="async"
+    fetchpriority={fetchpriority}
+    class={className}
+  />
+) : (
+  <img
+    src={src}
+    alt={alt}
+    width={width}
+    height={height}
+    loading={loading}
+    decoding="async"
+    fetchpriority={fetchpriority}
+    class={className}
+  />
+)}

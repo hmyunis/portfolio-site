@@ -110,7 +110,26 @@ src/
    ```
    Then edit these files with your personal information, projects, and experience.
 
-3. **Site Config**: Modify `src/config/constants.ts` for site-wide settings (URL, theme color, etc.).
+3. **Site Config**: Modify `src/config/constants.ts` for site-wide settings (URL, theme color, monogram, and the `SHEETS` list that numbers the homepage sections and builds the navbar).
+
+### 404 page
+
+`src/pages/404.astro` builds to `dist/404.html` (marked `noindex`). How unknown URLs reach it depends on the host:
+
+- **Netlify, Vercel, Cloudflare Pages, GitHub Pages**: automatic, no config needed.
+- **Plesk** (nginx in front of Apache, so `.htaccess` is not reached for 404s):
+  1. `npm run build` also writes `dist-plesk/error_docs/not_found.html` (a copy of the 404 page).
+  2. In Plesk: **Websites & Domains → your domain → Hosting & DNS → Hosting** → tick **Custom error documents** → Save.
+  3. In **File Manager**, open the **Home directory** (one level above `httpdocs`) → `error_docs/` → upload `not_found.html`, replacing Plesk's file. Keep the exact name.
+  4. Re-upload it whenever you rebuild after changing the 404 page, fonts, or styles.
+- **Plain Apache / cPanel**: handled by `public/.htaccess` (`ErrorDocument 404 /404.html`), copied into `dist/` on build. It is a hidden file, so make sure your FTP client shows dotfiles.
+- **Nginx**: add `error_page 404 /404.html;` to the server block.
+
+### Media
+
+- **Images**: import local images in `projects.ts` / `achievements.ts` (e.g. `thumbnail: skolaThumbnail`, not `.src`). Astro then generates resized WebP variants at build time and serves the smallest one each screen needs. Remote URLs also work, unoptimised.
+- **Demo videos**: project demos are MP4, not GIF (about 70% smaller). Put GIFs in `src/assets/works/gifs/` and run `npm run media:videos` (requires [ffmpeg](https://ffmpeg.org/download.html)) to write MP4s to `src/assets/works/videos/`, then reference them with `demoVideo`.
+- Homepage cards load a demo video only when hovered; certificate images load only when their dialog opens; cards beyond the first six load only after "Show more".
 
 **Note**: The actual data files (`siteData.json` and `projects.ts`) are gitignored to protect your personal information. Only the example files are tracked in the repository.
 

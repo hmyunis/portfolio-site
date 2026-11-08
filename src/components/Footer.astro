@@ -1,0 +1,127 @@
+---
+import { ArrowUp, ArrowUpRight } from 'lucide-react';
+import siteData from '../data/siteData.json';
+import { SHEET_TOTAL } from '../config/constants';
+
+const SOURCE_URL = 'https://github.com/hmyunis/portfolio-site';
+const year = new Date().getFullYear();
+const revised = new Intl.DateTimeFormat('en-GB', { month: 'short', year: 'numeric' })
+  .format(new Date())
+  .toUpperCase();
+---
+
+<footer class="frame foot" role="contentinfo">
+  <div class="sheet-box foot-box">
+    <dl class="foot-grid">
+      <div class="foot-cell foot-cell--name">
+        <dt class="mono-label">Drawn by</dt>
+        <dd>{siteData.name}</dd>
+      </div>
+      <div class="foot-cell">
+        <dt class="mono-label">Set</dt>
+        <dd>{SHEET_TOTAL} sheets</dd>
+      </div>
+      <div class="foot-cell">
+        <dt class="mono-label">Revised</dt>
+        <dd>{revised}</dd>
+      </div>
+      <div class="foot-cell">
+        <dt class="mono-label">Source</dt>
+        <dd>
+          <a href={SOURCE_URL} target="_blank" rel="noopener noreferrer">
+            GitHub <ArrowUpRight size={14} aria-hidden="true" />
+          </a>
+        </dd>
+      </div>
+    </dl>
+    <div class="foot-bar">
+      <p>&copy; {year} {siteData.name}. All rights reserved.</p>
+      <a href="#main-content" class="foot-top">
+        Back to top <ArrowUp size={14} aria-hidden="true" />
+      </a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .foot {
+    margin-top: clamp(2.5rem, 6vw, 4rem);
+    padding-bottom: 2rem;
+  }
+
+  .foot-grid {
+    display: grid;
+    grid-template-columns: 2fr repeat(3, 1fr);
+    margin: 0;
+  }
+  .foot-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1rem var(--pad);
+    border-left: 1px solid var(--color-border);
+  }
+  .foot-cell:first-child {
+    border-left: 0;
+  }
+  .foot-cell dd {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+  .foot-cell--name dd {
+    font-size: clamp(1.4rem, 2.6vw, 2.2rem);
+    font-stretch: 72%;
+    font-weight: 900;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+  .foot-cell a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+  .foot-cell a:hover {
+    color: var(--color-accent);
+  }
+
+  .foot-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    padding: 0.8rem var(--pad);
+    background: var(--color-text);
+    color: var(--color-bg);
+    font: 500 11px/1.4 var(--font-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .foot-bar p {
+    margin: 0;
+  }
+  .foot-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .foot-top:hover {
+    color: var(--color-accent);
+  }
+
+  @media (max-width: 767px) {
+    .foot-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .foot-cell--name {
+      grid-column: 1 / -1;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .foot-cell:nth-child(2) {
+      border-left: 0;
+    }
+  }
+</style>

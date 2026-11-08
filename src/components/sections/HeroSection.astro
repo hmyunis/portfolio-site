@@ -1,46 +1,1248 @@
 ---
-import { Download, Github, Linkedin } from 'lucide-react';
+import { ArrowDown, ArrowUpRight, Download, Github, Linkedin } from 'lucide-react';
 import siteData from '../../data/siteData.json';
+import projects from '../../data/projects';
+import achievements from '../../data/achievements';
+import type { SiteData } from '../../types';
+import { SCRAMBLE_GLYPHS, formatDateInZone } from '../../utils/date';
+import { SHEETS } from '../../config/constants';
+
+// The page reads as a set of drawings: hero, experience, skills, work, honors, contact.
+const SHEET = { index: 1, total: SHEETS.length };
+const NEXT_SHEET = { href: `#${SHEETS[1].id}`, label: SHEETS[1].label };
+const ZONE_COLUMNS = 6;
+const ZONE_ROWS = ['A', 'B', 'C', 'D'];
+
+const {
+	coordinates,
+	timeZone = 'UTC',
+	availability,
+} = siteData as Pick<SiteData, 'coordinates' | 'timeZone' | 'availability'>;
+
+const [firstName = '', ...otherNames] = siteData.name.trim().split(/\s+/);
+const lastName = otherNames.join(' ');
+
+// Each letter starts as a scrambled glyph; the intro script resolves it to the real letter.
+const glyphs = [...SCRAMBLE_GLYPHS];
+let glyphSeed = 0;
+const toChars = (text: string) =>
+	[...text].map((char) => ({ char, glyph: glyphs[(glyphSeed++ * 17 + 5) % glyphs.length] }));
+const firstChars = toChars(firstName.toUpperCase());
+const lastChars = toChars(lastName.toUpperCase());
+
+const current = siteData.experience.find((item) => /present/i.test(item.period));
+const years = siteData.experience.flatMap((item) => item.period.match(/\d{4}/g) ?? []).map(Number);
+const since = years.length > 0 ? Math.min(...years) : null;
+const principles = siteData.philosophy.headline
+	.split('/')
+	.map((part) => part.trim())
+	.filter(Boolean);
+const github = siteData.socials.find((social) => social.icon === 'github');
+const linkedin = siteData.socials.find((social) => social.icon === 'linkedin');
+
+const pad2 = (value: number) => String(value).padStart(2, '0');
+const now = new Date();
+const clock = new Intl.DateTimeFormat('en-GB', {
+	timeZone,
+	hour: '2-digit',
+	minute: '2-digit',
+	second: '2-digit',
+	hourCycle: 'h23',
+}).format(now);
+const utcOffset =
+	new Intl.DateTimeFormat('en-US', { timeZone, timeZoneName: 'shortOffset' })
+		.formatToParts(now)
+		.find((part) => part.type === 'timeZoneName')
+		?.value.replace('GMT', 'UTC') ?? '';
+interface TitleCell {
+	label: string;
+	value: string;
+	unit?: string;
+	wide?: boolean;
+	live?: 'date';
+}
+
+const titleBlock: TitleCell[] = [
+	{ label: 'Shipped', value: String(projects.length), unit: 'works' },
+	{ label: 'Honors', value: pad2(achievements.length) },
+	...(since ? [{ label: 'Coding since', value: String(since) }] : []),
+	{ label: 'Date', value: formatDateInZone(now, timeZone), wide: true, live: 'date' as const },
+	{ label: 'Sheet', value: `${pad2(SHEET.index)}/${pad2(SHEET.total)}` },
+];
 ---
 
-<section class="py-20 md:py-32 space-y-10" id="about">
-	<div class="space-y-6">
-		<h1 class="text-5xl md:text-7xl font-bold tracking-tight">{siteData.name}</h1>
-		<p class="text-xl md:text-2xl text-muted font-light max-w-2xl leading-relaxed">
-			{siteData.role}. <br> {siteData.philosophy.headline}.
-		</p>
-		<p class="text-muted max-w-2xl leading-relaxed mt-4">
-			{siteData.philosophy.text}
-		</p>
-	</div>
+<section
+	id="about"
+	class="hero"
+	aria-labelledby="hero-name"
+	data-hero
+	data-sheet
+	data-sheet-number="01"
+	data-sheet-label={SHEETS[0].label}
+>
+	<script is:inline>
+		// Runs before the name is parsed so the first paint already shows the scrambled glyphs.
+		(() => {
+			if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+			const hero = document.currentScript.parentElement;
+			hero.classList.add('is-armed');
+			window.__heroFailsafe = setTimeout(() => hero.classList.remove('is-armed'), 4000);
+		})();
+	</script>
 
-	<div class="flex flex-wrap gap-4">
-		<a
-			href={siteData.resumeUrl}
-			target="_blank"
-			rel="noopener noreferrer"
-			class="flex items-center gap-2 px-6 py-3 bg-text text-bg font-semibold border-[2px] border-border hover:opacity-90 transition-all shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] dark:hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.15)]"
-			aria-label="Download resume"
-		>
-			<Download size={18} aria-hidden="true" /> Resume
-		</a>
-		<a
-			href={siteData.socials[0].url}
-			target="_blank"
-			rel="noopener noreferrer"
-			class="flex items-center gap-2 px-6 py-3 border-[2px] border-border hover:bg-surface transition-all hover:border-accent/50 shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] dark:hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.15)]"
-			aria-label="Visit GitHub profile"
-		>
-			<Github size={18} aria-hidden="true" /> GitHub
-		</a>
-		<a
-			href={siteData.socials[1].url}
-			target="_blank"
-			rel="noopener noreferrer"
-			class="flex items-center gap-2 px-6 py-3 border-[2px] border-border hover:bg-surface transition-all hover:border-accent/50 shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] dark:hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.15)]"
-			aria-label="Visit LinkedIn profile"
-		>
-			<Linkedin size={18} aria-hidden="true" /> LinkedIn
-		</a>
+	<div class="sheet">
+		<span class="crop crop--tl" aria-hidden="true"></span>
+		<span class="crop crop--tr" aria-hidden="true"></span>
+		<span class="crop crop--bl" aria-hidden="true"></span>
+		<span class="crop crop--br" aria-hidden="true"></span>
+
+		{['top', 'bottom'].map((side) => (
+			<div class={`zones zones--${side}`} aria-hidden="true">
+				{Array.from({ length: ZONE_COLUMNS }, (_, i) => (
+					<span data-zone-col={i} style={`--i:${i}`}>{i + 1}</span>
+				))}
+			</div>
+		))}
+		{['left', 'right'].map((side) => (
+			<div class={`zones zones--${side}`} aria-hidden="true">
+				{ZONE_ROWS.map((row, i) => (
+					<span data-zone-row={i} style={`--i:${i}`}>{row}</span>
+				))}
+			</div>
+		))}
+
+		<div class="field" data-field data-zone-cols={ZONE_COLUMNS} data-zone-rows={ZONE_ROWS.join('')}>
+			<div class="xhair" data-xhair aria-hidden="true">
+				<span class="xhair-h"></span>
+				<span class="xhair-v"></span>
+				<span class="xhair-tag" data-xhair-tag></span>
+			</div>
+			<span class="scan" data-scan aria-hidden="true"></span>
+
+			<header class="meta">
+				<p style="--i:0">
+					<span class="ink">{siteData.location}</span>
+					{coordinates && <span class="meta-coords">{coordinates}</span>}
+				</p>
+				<p style="--i:1">
+					<span>Local time</span>
+					<time class="ink" data-clock data-tz={timeZone}>{clock}</time>
+					<span>{utcOffset}</span>
+				</p>
+				{availability && (
+					<p class="meta-status" style="--i:2">
+						<span class="status-mark" aria-hidden="true"></span>
+						<span class="ink">{availability}</span>
+					</p>
+				)}
+			</header>
+
+			<div class="stage">
+				<h1 id="hero-name" class="name">
+					<span class="sr-only">{siteData.name}</span>
+					<span class="name-line" aria-hidden="true">
+						<span class="word">
+							{firstChars.map(({ char, glyph }) => (
+								<span class="char" data-glyph={glyph}>{char}</span>
+							))}
+						</span>
+						<span class="caption">
+							<span class="caption-fig">Fig. {pad2(SHEET.index)}</span>
+							<span class="caption-role">{siteData.role}</span>
+						</span>
+					</span>
+					<span class="name-line" aria-hidden="true">
+						<span class="word">
+							{lastChars.map(({ char, glyph }) =>
+								char === ' ' ? (
+									<span class="word-gap"> </span>
+								) : (
+									<span class="char" data-glyph={glyph}>{char}</span>
+								)
+							)}
+						</span>
+						<span class="stop"></span>
+					</span>
+				</h1>
+			</div>
+
+			<div class="brief">
+				<div class="brief-role">
+					<!-- Shown on small screens; on larger ones the role appears as a caption beside the name. -->
+					<div class="role-block">
+						<p class="label" style="--i:3">Role</p>
+						<p class="role" style="--i:4">{siteData.role}</p>
+					</div>
+					{current && (
+						<>
+							<p class="label" style="--i:5">Currently</p>
+							<p class="current" style="--i:6">
+								<span>{current.role}</span>
+								{current.companyUrl ? (
+									<a href={current.companyUrl} target="_blank" rel="noopener noreferrer">
+										{current.company}
+										<ArrowUpRight size={14} aria-hidden="true" />
+									</a>
+								) : (
+									<span>{current.company}</span>
+								)}
+							</p>
+						</>
+					)}
+				</div>
+
+				<div class="brief-approach">
+					<p class="label" style="--i:4">Approach</p>
+					<ol class="principles" style="--i:5">
+						{principles.map((principle, i) => (
+							<li>
+								<span class="principle-index">{pad2(i + 1)}</span>
+								{principle}
+							</li>
+						))}
+					</ol>
+					<p class="philosophy" style="--i:6">{siteData.philosophy.text}</p>
+				</div>
+
+				<div class="ctas">
+					<a
+						class="btn btn--primary"
+						href={siteData.resumeUrl}
+						target="_blank"
+						rel="noopener noreferrer"
+						style="--i:7"
+					>
+						<Download size={18} aria-hidden="true" />
+						Resume
+						<span class="btn-tag">PDF</span>
+					</a>
+					{github && (
+						<a class="btn" href={github.url} target="_blank" rel="noopener noreferrer" style="--i:8">
+							<Github size={18} aria-hidden="true" />
+							GitHub
+							<ArrowUpRight className="btn-arrow" size={16} aria-hidden="true" />
+						</a>
+					)}
+					{linkedin && (
+						<a class="btn" href={linkedin.url} target="_blank" rel="noopener noreferrer" style="--i:9">
+							<Linkedin size={18} aria-hidden="true" />
+							LinkedIn
+							<ArrowUpRight className="btn-arrow" size={16} aria-hidden="true" />
+						</a>
+					)}
+				</div>
+
+				<div class="titleblock">
+					<dl class="tb-grid">
+						{titleBlock.map((cell) => (
+							<div class:list={['tb-cell', { 'tb-cell--wide': cell.wide }]}>
+								<dt>{cell.label}</dt>
+								<dd>
+									<span data-live={cell.live}>{cell.value}</span>
+									{cell.unit && <span class="tb-unit">{cell.unit}</span>}
+								</dd>
+							</div>
+						))}
+					</dl>
+					<a class="tb-next" href={NEXT_SHEET.href}>
+						<span>
+							<span class="tb-next-index">{pad2(SHEET.index + 1)}</span>
+							{NEXT_SHEET.label}
+						</span>
+						<ArrowDown size={16} aria-hidden="true" />
+					</a>
+				</div>
+			</div>
+		</div>
 	</div>
 </section>
+
+<script>
+	import { SCRAMBLE_GLYPHS, formatDateInZone } from '../../utils/date';
+
+	declare global {
+		interface Window {
+			__heroFailsafe?: number;
+		}
+	}
+
+	const hero = document.querySelector<HTMLElement>('[data-hero]');
+	if (hero) setupHero(hero);
+
+	function setupHero(hero: HTMLElement) {
+		const field = hero.querySelector<HTMLElement>('[data-field]');
+		if (!field) return;
+
+		const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+		const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
+		const glyphs = [...SCRAMBLE_GLYPHS];
+		const randomGlyph = () => glyphs[Math.floor(Math.random() * glyphs.length)];
+		const chars = [...hero.querySelectorAll<HTMLElement>('.char')];
+
+		runClock();
+		runIntro();
+		if (finePointer) {
+			trackCrosshair();
+			chars.forEach((char) => char.addEventListener('pointerenter', () => shuffle(char)));
+		}
+
+		/** Live local time and today's date. */
+		function runClock() {
+			const clock = hero.querySelector<HTMLTimeElement>('[data-clock]');
+			if (!clock) return;
+			const timeZone = clock.dataset.tz || 'UTC';
+			const format = new Intl.DateTimeFormat('en-GB', {
+				timeZone,
+				hour: '2-digit',
+				minute: '2-digit',
+				second: '2-digit',
+				hourCycle: 'h23',
+			});
+			const date = hero.querySelector('[data-live="date"]');
+			const tick = () => {
+				const now = new Date();
+				clock.textContent = format.format(now);
+				if (date) date.textContent = formatDateInZone(now, timeZone);
+				setTimeout(tick, 1000 - (now.getTime() % 1000));
+			};
+			tick();
+		}
+
+		/** A scan line sweeps the sheet; each scrambled glyph resolves to its letter as the line passes it. */
+		async function runIntro() {
+			clearTimeout(window.__heroFailsafe);
+			if (reduceMotion) {
+				hero.classList.remove('is-armed');
+				return;
+			}
+			hero.classList.add('is-armed');
+			await fontsSettled(900);
+
+			const scan = hero.querySelector<HTMLElement>('[data-scan]');
+			const fieldBox = field.getBoundingClientRect();
+			// Letter positions are read live each frame: the display font may finish
+			// loading mid-sweep and shift every letter.
+			const targets = chars.map((el) => ({ el, done: false }));
+			const centerOf = (el: HTMLElement) => {
+				const box = el.getBoundingClientRect();
+				return box.left + box.width / 2 - fieldBox.left;
+			};
+			const duration = 1150;
+			const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
+			const start = performance.now();
+			let lastSwap = 0;
+
+			const frame = (now: number) => {
+				const progress = Math.min((now - start) / duration, 1);
+				const x = ease(progress) * fieldBox.width;
+				if (scan) scan.style.transform = `translate3d(${x}px, 0, 0)`;
+
+				const swap = now - lastSwap > 55;
+				if (swap) lastSwap = now;
+				for (const target of targets) {
+					if (target.done) continue;
+					if (x >= centerOf(target.el)) {
+						target.done = true;
+						target.el.classList.add('is-resolved');
+					} else if (swap) {
+						target.el.dataset.glyph = randomGlyph();
+					}
+				}
+
+				if (progress < 1) {
+					requestAnimationFrame(frame);
+				} else {
+					hero.classList.remove('is-armed');
+					chars.forEach((char) => char.classList.remove('is-resolved'));
+				}
+			};
+			requestAnimationFrame(frame);
+		}
+
+		/** Wait for the display face so the scan resolves into final letterforms (bounded). */
+		async function fontsSettled(timeout: number) {
+			const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+			const loaded = (async () => {
+				const registered = () =>
+					[...document.fonts].some((face) => face.family.replace(/["']/g, '') === 'Archivo Variable');
+				for (let i = 0; i < 30 && !registered(); i++) await sleep(30);
+				await document.fonts.load('900 100px "Archivo Variable"');
+				await document.fonts.ready;
+			})();
+			await Promise.race([loaded, sleep(timeout)]);
+		}
+
+		/** Hovering a letter briefly scrambles it. */
+		function shuffle(el: HTMLElement) {
+			if (hero.classList.contains('is-armed') || el.classList.contains('is-scrambling')) return;
+			el.classList.add('is-scrambling');
+			let steps = 0;
+			const step = () => {
+				el.dataset.glyph = randomGlyph();
+				if (++steps < 6) setTimeout(step, 50);
+				else el.classList.remove('is-scrambling');
+			};
+			step();
+		}
+
+		/** CAD-style crosshair with a coordinate tag and live zone references on the frame. */
+		function trackCrosshair() {
+			const xhair = hero.querySelector<HTMLElement>('[data-xhair]');
+			const tag = hero.querySelector<HTMLElement>('[data-xhair-tag]');
+			if (!xhair || !tag) return;
+			const columns = Number(field.dataset.zoneCols) || 6;
+			const rows = field.dataset.zoneRows || 'ABCD';
+			const colLabels = [...hero.querySelectorAll<HTMLElement>('[data-zone-col]')];
+			const rowLabels = [...hero.querySelectorAll<HTMLElement>('[data-zone-row]')];
+			const clamp = (value: number, max: number) => Math.min(Math.max(value, 0), max);
+			const pad4 = (value: number) => String(Math.round(value)).padStart(4, '0');
+
+			let box: DOMRect | null = null;
+			let pointer = { x: 0, y: 0 };
+			let frame = 0;
+			let zone = '';
+
+			const setZone = (next: string, col = -1, row = -1) => {
+				if (next === zone) return;
+				zone = next;
+				colLabels.forEach((el) => el.classList.toggle('is-active', Number(el.dataset.zoneCol) === col));
+				rowLabels.forEach((el) => el.classList.toggle('is-active', Number(el.dataset.zoneRow) === row));
+			};
+
+			const render = () => {
+				frame = 0;
+				box ??= field.getBoundingClientRect();
+				const x = clamp(pointer.x - box.left, box.width);
+				const y = clamp(pointer.y - box.top, box.height);
+				const col = clamp(Math.floor((x / box.width) * columns), columns - 1);
+				const row = clamp(Math.floor((y / box.height) * rows.length), rows.length - 1);
+				const label = `${rows[row]}${col + 1}`;
+
+				xhair.style.setProperty('--x', `${x}px`);
+				xhair.style.setProperty('--y', `${y}px`);
+				tag.textContent = `${label} · ${pad4(x)} × ${pad4(y)}`;
+				const flipX = x > box.width - tag.offsetWidth - 28;
+				const flipY = y > box.height - tag.offsetHeight - 28;
+				tag.style.transform = `translate3d(${flipX ? x - tag.offsetWidth - 12 : x + 12}px, ${
+					flipY ? y - tag.offsetHeight - 12 : y + 12
+				}px, 0)`;
+				setZone(label, col, row);
+			};
+
+			field.addEventListener('pointerenter', () => {
+				box = field.getBoundingClientRect();
+				xhair.classList.add('is-on');
+			});
+			field.addEventListener('pointermove', (event) => {
+				pointer = { x: event.clientX, y: event.clientY };
+				if (!frame) frame = requestAnimationFrame(render);
+			});
+			field.addEventListener('pointerleave', () => {
+				xhair.classList.remove('is-on');
+				setZone('');
+			});
+			const invalidate = () => (box = null);
+			addEventListener('scroll', invalidate, { passive: true });
+			addEventListener('resize', invalidate, { passive: true });
+		}
+	}
+</script>
+
+<style>
+	.hero {
+		--ink: var(--color-text);
+		--paper: var(--color-bg);
+		--accent: var(--color-accent);
+		--muted: var(--color-muted);
+		--hair: color-mix(in srgb, var(--color-text) 16%, transparent);
+		--strip: 22px;
+		--pad: clamp(1rem, 2.2vw, 2rem);
+		--ease: cubic-bezier(0.7, 0, 0.2, 1);
+		--ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+		--f-display: var(--font-display);
+		--f-mono: var(--font-mono);
+
+		position: relative;
+		padding: 1.25rem var(--frame-gutter) 0;
+		/* The crop marks sit just outside the sheet; never let them widen the page. */
+		overflow-x: clip;
+		color: var(--ink);
+		font-family: var(--f-display);
+	}
+
+	/* ---------- Sheet + drawing frame ---------- */
+
+	.sheet {
+		position: relative;
+		display: flex;
+		max-width: 1680px;
+		/* Fill the first screen below the navbar, leaving the top padding visible. */
+		min-height: calc(100svh - var(--nav-h) - 2px - 2.5rem);
+		margin: 0 auto;
+		padding: var(--strip);
+		background: var(--paper);
+		border: 2px solid var(--ink);
+		box-shadow: var(--shadow-thick);
+		transition: background-color 0.3s, border-color 0.3s;
+	}
+
+	.crop {
+		position: absolute;
+		width: 14px;
+		height: 14px;
+		pointer-events: none;
+	}
+	.crop::before,
+	.crop::after {
+		content: '';
+		position: absolute;
+		background: var(--ink);
+	}
+	.crop::before {
+		width: 10px;
+		height: 1px;
+	}
+	.crop::after {
+		width: 1px;
+		height: 10px;
+	}
+	.crop--tl {
+		top: -16px;
+		left: -16px;
+	}
+	.crop--tl::before {
+		bottom: 2px;
+		left: 0;
+	}
+	.crop--tl::after {
+		top: 0;
+		right: 2px;
+	}
+	.crop--tr {
+		top: -16px;
+		right: -16px;
+	}
+	.crop--tr::before {
+		bottom: 2px;
+		right: 0;
+	}
+	.crop--tr::after {
+		top: 0;
+		left: 2px;
+	}
+	.crop--bl {
+		bottom: -16px;
+		left: -16px;
+	}
+	.crop--bl::before {
+		top: 2px;
+		left: 0;
+	}
+	.crop--bl::after {
+		bottom: 0;
+		right: 2px;
+	}
+	.crop--br {
+		bottom: -16px;
+		right: -16px;
+	}
+	.crop--br::before {
+		top: 2px;
+		right: 0;
+	}
+	.crop--br::after {
+		bottom: 0;
+		left: 2px;
+	}
+
+	.zones {
+		position: absolute;
+		display: grid;
+		color: var(--muted);
+		font: 500 10px/1 var(--f-mono);
+		user-select: none;
+	}
+	.zones--top,
+	.zones--bottom {
+		left: var(--strip);
+		right: var(--strip);
+		height: var(--strip);
+		grid-template-columns: repeat(6, 1fr);
+	}
+	.zones--top {
+		top: 0;
+	}
+	.zones--bottom {
+		bottom: 0;
+	}
+	.zones--left,
+	.zones--right {
+		top: var(--strip);
+		bottom: var(--strip);
+		width: var(--strip);
+		grid-template-rows: repeat(4, 1fr);
+	}
+	.zones--left {
+		left: 0;
+	}
+	.zones--right {
+		right: 0;
+	}
+	.zones span {
+		display: grid;
+		place-items: center;
+		transition: color 0.15s, background-color 0.15s;
+	}
+	.zones--top span + span,
+	.zones--bottom span + span {
+		box-shadow: inset 1px 0 0 var(--hair);
+	}
+	.zones--left span + span,
+	.zones--right span + span {
+		box-shadow: inset 0 1px 0 var(--hair);
+	}
+	.zones span.is-active {
+		color: var(--accent);
+		font-weight: 600;
+	}
+
+	.field {
+		position: relative;
+		display: grid;
+		flex: 1;
+		grid-template-rows: auto 1fr auto;
+		min-width: 0;
+		border: 1px solid var(--ink);
+	}
+
+	/* ---------- Meta row ---------- */
+
+	.meta {
+		position: relative;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		gap: 0.375rem 2rem;
+		padding: 0.8rem var(--pad);
+		color: var(--muted);
+		font: 500 11px/1.4 var(--f-mono);
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+	}
+	.meta::after {
+		content: '';
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		height: 1px;
+		background: var(--ink);
+		transform-origin: left;
+	}
+	.meta p {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin: 0;
+	}
+	.meta .ink {
+		color: var(--ink);
+	}
+	.meta time {
+		font-variant-numeric: tabular-nums;
+	}
+	.status-mark {
+		width: 7px;
+		height: 7px;
+		background: var(--accent);
+	}
+
+	/* ---------- Name ---------- */
+
+	.stage {
+		container-type: inline-size;
+		display: flex;
+		align-items: flex-end;
+		min-width: 0;
+		padding: clamp(1.5rem, 4vh, 3rem) var(--pad) clamp(0.75rem, 1.8vh, 1.25rem);
+	}
+
+	.hero .name {
+		margin: 0;
+		color: var(--ink);
+		background: none;
+		-webkit-text-fill-color: currentColor;
+		font-family: var(--f-display);
+		/* The longest line measures ~5.6em including the stop; 5.85 keeps a margin. */
+		font-size: clamp(2.5rem, min(100cqi / 5.85, (100svh - 34rem) / 1.62), 17rem);
+		font-stretch: 72%;
+		font-weight: 900;
+		letter-spacing: -0.01em;
+		line-height: 0.8;
+		text-transform: uppercase;
+	}
+
+	.name-line {
+		display: flex;
+		align-items: baseline;
+		white-space: nowrap;
+	}
+
+	/* Figure caption beside the first name: the role, set like a drawing annotation. */
+	.caption {
+		display: flex;
+		flex-direction: column;
+		align-self: center;
+		gap: 0.7rem;
+		/* Width and offset use the name's em; the text inside is set in rem. */
+		max-width: 2.4em;
+		margin-left: 0.3em;
+		padding-left: 1rem;
+		border-left: 2px solid var(--accent);
+		white-space: normal;
+		text-transform: none;
+	}
+	.caption-fig {
+		color: var(--accent);
+		font: 500 11px/1 var(--f-mono);
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+	}
+	.caption-role {
+		color: var(--ink);
+		font-family: var(--f-display);
+		font-size: clamp(1.1rem, 2.1vw, 2.1rem);
+		font-stretch: 90%;
+		font-weight: 650;
+		letter-spacing: -0.015em;
+		line-height: 1.05;
+	}
+
+	.word-gap {
+		display: inline-block;
+		width: 0.22em;
+	}
+
+	.char {
+		position: relative;
+		display: inline-block;
+		transition: color 0.2s;
+	}
+	.char::after {
+		content: attr(data-glyph);
+		position: absolute;
+		top: 0;
+		left: 50%;
+		color: var(--accent);
+		-webkit-text-fill-color: currentColor;
+		opacity: 0;
+		pointer-events: none;
+		transform: translateX(-50%);
+	}
+
+	.is-armed .char:not(.is-resolved),
+	.char.is-scrambling {
+		color: transparent;
+	}
+	.is-armed .char:not(.is-resolved)::after,
+	.char.is-scrambling::after {
+		opacity: 1;
+	}
+
+	/* Square full stop in the accent colour. */
+	.stop {
+		display: inline-block;
+		width: 0.17em;
+		height: 0.17em;
+		margin-left: 0.05em;
+		background: var(--accent);
+		transition:
+			transform 0.45s cubic-bezier(0.2, 1.8, 0.4, 1),
+			opacity 0.2s;
+	}
+	.is-armed .stop {
+		opacity: 0;
+		transform: scale(2.2) rotate(-12deg);
+	}
+
+	.scan {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		z-index: 4;
+		width: 2px;
+		margin-left: -1px;
+		background: var(--accent);
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 0.3s;
+	}
+	.is-armed .scan {
+		opacity: 1;
+	}
+
+	/* ---------- Brief: role, approach, title block, actions ---------- */
+
+	.brief {
+		position: relative;
+		display: grid;
+		grid-template-columns: repeat(12, minmax(0, 1fr));
+		grid-template-rows: 1fr auto;
+	}
+	.brief::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 1px;
+		background: var(--ink);
+		transform-origin: left;
+	}
+
+	.brief-role,
+	.brief-approach {
+		padding: 1.4rem var(--pad) 1.25rem;
+	}
+	.brief-role {
+		grid-column: 1 / span 4;
+	}
+	.brief-approach {
+		position: relative;
+		grid-column: 5 / span 4;
+	}
+	.brief-approach::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		width: 1px;
+		background: var(--hair);
+		transform-origin: top;
+	}
+
+	.label {
+		margin: 0 0 0.45rem;
+		color: var(--muted);
+		font: 500 10.5px/1.2 var(--f-mono);
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+	}
+	.label:not(:first-child) {
+		margin-top: 1.1rem;
+	}
+
+	/* The caption shows the role on larger screens; keep this copy for screen readers only. */
+	.role-block {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+	}
+	.role-block + .label {
+		margin-top: 0;
+	}
+
+	.role {
+		margin: 0;
+		max-width: 16ch;
+		font-size: clamp(1.35rem, 1.9vw, 1.75rem);
+		font-stretch: 92%;
+		font-weight: 650;
+		letter-spacing: -0.015em;
+		line-height: 1.08;
+	}
+
+	.current {
+		display: flex;
+		flex-direction: column;
+		gap: 0.15rem;
+		margin: 0;
+		font-size: 0.95rem;
+		line-height: 1.4;
+	}
+	.current a {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+		width: fit-content;
+		font-weight: 600;
+		text-decoration: underline;
+		text-decoration-thickness: 1px;
+		text-underline-offset: 0.2em;
+		transition: color 0.15s;
+	}
+	.current a:hover {
+		color: var(--accent);
+	}
+
+	.principles {
+		display: grid;
+		gap: 0.2rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		font-size: 1.15rem;
+		font-stretch: 92%;
+		font-weight: 650;
+		letter-spacing: -0.01em;
+		line-height: 1.25;
+	}
+	.principles li {
+		display: flex;
+		align-items: baseline;
+		gap: 0.75rem;
+	}
+	.principle-index {
+		color: var(--accent);
+		font: 500 11px/1 var(--f-mono);
+	}
+
+	.philosophy {
+		max-width: 44ch;
+		margin: 0.9rem 0 0;
+		color: var(--muted);
+		font-size: 0.95rem;
+		line-height: 1.55;
+	}
+
+	.titleblock {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		grid-column: 9 / -1;
+		grid-row: 1 / -1;
+		margin-top: -1px;
+		border-top: 2px solid var(--ink);
+		border-left: 2px solid var(--ink);
+		font-family: var(--f-mono);
+	}
+	.tb-grid {
+		display: grid;
+		flex: 1;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		margin: 0;
+	}
+	.tb-cell {
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		gap: 0.5rem;
+		padding: 0.7rem 0.85rem;
+		border-left: 1px solid var(--ink);
+	}
+	.tb-cell:nth-child(3n + 1) {
+		border-left: 0;
+	}
+	.tb-cell:nth-child(n + 4) {
+		border-top: 1px solid var(--ink);
+	}
+	.tb-cell--wide {
+		grid-column: span 2;
+	}
+	.tb-cell dt {
+		color: var(--muted);
+		font-size: 9.5px;
+		font-weight: 500;
+		letter-spacing: 0.1em;
+		line-height: 1;
+		text-transform: uppercase;
+	}
+	.tb-cell dd {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.1rem 0.4rem;
+		margin: 0;
+		font-family: var(--f-display);
+		font-size: clamp(1.1rem, 1.55vw, 1.6rem);
+		font-stretch: 80%;
+		font-variant-numeric: tabular-nums;
+		font-weight: 800;
+		letter-spacing: -0.01em;
+		line-height: 1;
+		white-space: nowrap;
+	}
+	.tb-unit {
+		color: var(--muted);
+		font: 500 10px/1 var(--f-mono);
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+	}
+
+	.tb-next {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.85rem;
+		background: var(--ink);
+		color: var(--paper);
+		font-size: 12px;
+		font-weight: 600;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		transition: background-color 0.15s, color 0.15s;
+	}
+	.tb-next > span {
+		display: flex;
+		gap: 0.75rem;
+	}
+	.tb-next-index {
+		opacity: 0.6;
+	}
+	.tb-next :global(svg) {
+		transition: transform 0.2s var(--ease-out);
+	}
+	.tb-next:hover {
+		background: var(--accent);
+		color: #fff;
+	}
+	.tb-next:hover :global(svg) {
+		transform: translateY(3px);
+	}
+
+	.ctas {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		grid-column: 1 / span 8;
+		gap: 0.9rem;
+		padding: 0 var(--pad) 1.5rem;
+	}
+
+	/* Button base styles live in global.css (.btn, .btn--primary). */
+	.btn-tag {
+		padding: 2px 5px;
+		border: 1px solid currentColor;
+		font: 600 9.5px/1 var(--f-mono);
+		letter-spacing: 0.08em;
+		opacity: 0.75;
+	}
+	.btn :global(.btn-arrow) {
+		margin-left: -0.15rem;
+		opacity: 0.55;
+		transition: transform 0.2s var(--ease-out), opacity 0.2s;
+	}
+	.btn:hover :global(.btn-arrow) {
+		opacity: 1;
+		transform: translate(2px, -2px);
+	}
+
+	/* ---------- Crosshair ---------- */
+
+	.field {
+		cursor: crosshair;
+	}
+	.field a {
+		cursor: pointer;
+	}
+	.xhair {
+		position: absolute;
+		inset: 0;
+		z-index: 5;
+		overflow: hidden;
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 0.2s;
+	}
+	.xhair.is-on {
+		opacity: 1;
+	}
+	.xhair-h,
+	.xhair-v {
+		position: absolute;
+		background: var(--accent);
+	}
+	.xhair-h {
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 1px;
+		transform: translate3d(0, var(--y, 0), 0);
+	}
+	.xhair-v {
+		top: 0;
+		bottom: 0;
+		left: 0;
+		width: 1px;
+		transform: translate3d(var(--x, 0), 0, 0);
+	}
+	.xhair-tag {
+		position: absolute;
+		top: 0;
+		left: 0;
+		padding: 4px 6px;
+		background: var(--ink);
+		color: var(--paper);
+		font: 500 10px/1 var(--f-mono);
+		letter-spacing: 0.06em;
+		white-space: nowrap;
+	}
+
+	/* ---------- Entrance: the plotter draws the rules, then type settles in ---------- */
+
+	@media (prefers-reduced-motion: no-preference) {
+		.meta::after,
+		.brief::before {
+			animation: draw-x 0.9s var(--ease) both;
+		}
+		.brief::before {
+			animation-delay: 0.12s;
+		}
+		.brief-approach::before {
+			animation: draw-y 0.6s var(--ease) 0.45s both;
+		}
+		.titleblock {
+			animation: wipe-down 0.8s var(--ease) 0.3s both;
+		}
+		.zones span {
+			animation: fade-in 0.5s ease both;
+			animation-delay: calc(var(--i) * 50ms + 0.1s);
+		}
+		.meta p,
+		.brief-role > *,
+		.brief-approach > *,
+		.btn {
+			animation: rise 0.7s var(--ease-out) both;
+			animation-delay: calc(var(--i, 0) * 70ms + 0.25s);
+		}
+	}
+
+	@keyframes draw-x {
+		from {
+			transform: scaleX(0);
+		}
+	}
+	@keyframes draw-y {
+		from {
+			transform: scaleY(0);
+		}
+	}
+	@keyframes wipe-down {
+		from {
+			clip-path: inset(0 0 100% 0);
+		}
+		to {
+			clip-path: inset(0 0 0 0);
+		}
+	}
+	@keyframes fade-in {
+		from {
+			opacity: 0;
+		}
+	}
+	@keyframes rise {
+		from {
+			opacity: 0;
+			transform: translateY(12px);
+		}
+	}
+
+	/* ---------- Responsive ---------- */
+
+	@media (max-width: 1023px) {
+		/* Portrait screens: let the sheet hug its content instead of stretching to the viewport. */
+		.sheet {
+			min-height: 0;
+		}
+		.stage {
+			padding-top: clamp(3rem, 8vw, 5rem);
+		}
+		.brief {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			grid-template-rows: auto;
+		}
+		.brief-role {
+			grid-column: 1;
+		}
+		.brief-approach {
+			grid-column: 2;
+		}
+		.ctas {
+			grid-column: 1 / -1;
+		}
+		.titleblock {
+			grid-column: 1 / -1;
+			grid-row: auto;
+			margin-top: 0;
+			border-left: 0;
+		}
+	}
+
+	@media (max-width: 767px) {
+		.hero {
+			--strip: 0px;
+			padding-top: 0.75rem;
+		}
+		.zones,
+		.crop {
+			display: none;
+		}
+		.field {
+			border: 0;
+		}
+		.meta {
+			gap: 0.35rem 1rem;
+			font-size: 10px;
+		}
+	}
+
+	@media (max-width: 639px) {
+		/* No room for the caption beside the name; show the role in the brief instead. */
+		.caption {
+			display: none;
+		}
+		.role-block {
+			position: static;
+			width: auto;
+			height: auto;
+			overflow: visible;
+			clip: auto;
+			white-space: normal;
+		}
+		.role-block + .label {
+			margin-top: 1.1rem;
+		}
+		.brief {
+			grid-template-columns: minmax(0, 1fr);
+		}
+		.brief-role,
+		.brief-approach,
+		.ctas,
+		.titleblock {
+			grid-column: 1;
+		}
+		.brief-approach {
+			padding-top: 1.1rem;
+		}
+		.brief-approach::before {
+			top: 0;
+			bottom: auto;
+			left: var(--pad);
+			right: var(--pad);
+			width: auto;
+			height: 1px;
+		}
+		.ctas {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+		}
+		.btn--primary {
+			grid-column: 1 / -1;
+			justify-content: center;
+		}
+		.btn {
+			justify-content: center;
+		}
+	}
+
+	@media (max-width: 359px) {
+		.ctas {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+</style>

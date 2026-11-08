@@ -1,115 +1,423 @@
 ---
-import { Info, Mail } from 'lucide-react';
-import CopyButton from '../ui/CopyButton';
-import CryptoDonationButton from '../ui/CryptoDonationButton';
+import { ArrowUpRight, Copy, Check, Send } from 'lucide-react';
+import Sheet from '../Sheet.astro';
+import SectionHeader from '../SectionHeader.astro';
 import SocialIcon from '../SocialIcon.astro';
-import ContactForm from '../features/ContactForm';
 import siteData from '../../data/siteData.json';
+import { FORM_CONFIG } from '../../config/constants';
+
+const handle = (url: string) =>
+  url
+    .replace(/^https?:\/\/(www\.)?/, '')
+    .replace(/\/$/, '');
+const shortAddress = (address: string) =>
+  address.length > 18 ? `${address.slice(0, 8)}…${address.slice(-6)}` : address;
 ---
 
-<section class="py-20 border-t-2 border-border" id="contact">
-	<div class="mb-12">
-		<h2 class="text-3xl font-bold mb-3">Let's Build Something</h2>
-		<p class="text-muted max-w-2xl">
-			I am available for contract work and custom software development. Let's discuss your project and create something superb.
-		</p>
-	</div>
+<Sheet id="contact">
+  <SectionHeader
+    sheet="contact"
+    title="Let's build"
+    lede="I am available for contract work and custom software development. Tell me about your project and let's make something superb."
+  />
 
-	<div class="grid md:grid-cols-2 gap-8">
-		<div class="space-y-6">
-			<div>
-				<h3 class="text-lg font-semibold mb-4 text-text">Get in Touch</h3>
-				<div class="space-y-3">
-					<div class="flex items-center justify-between p-4 bg-surface border-2 border-border hover:border-accent/50 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)]">
-						<div class="flex items-center gap-3">
-							<Mail className="text-accent shrink-0" size={20} aria-hidden="true" />
-							<a href={`mailto:${siteData.email}`} class="text-text hover:text-accent transition-colors font-medium text-sm" aria-label={`Send email to ${siteData.email}`}>
-								{siteData.email}
-							</a>
-						</div>
-						<CopyButton text={siteData.email} client:visible />
-					</div>
-				</div>
-			</div>
+  <div class="ct">
+    <div class="ct-info">
+      <div class="ct-block">
+        <p class="mono-label">Email</p>
+        <div class="ct-email-row">
+          <a class="ct-email" href={`mailto:${siteData.email}`}>{siteData.email}</a>
+          <button type="button" class="ct-copy" data-copy={siteData.email} aria-label="Copy email address">
+            <Copy className="i-copy" size={16} aria-hidden="true" />
+            <Check className="i-check" size={16} aria-hidden="true" />
+          </button>
+        </div>
+      </div>
 
-			<div>
-				<h3 class="text-lg font-semibold mb-4 text-text">Connect on Socials</h3>
-				<div class="grid grid-cols-2 gap-3" role="list">
-					{siteData.socials.map((social) => (
-						<a
-							href={social.url}
-							target="_blank"
-							rel="noopener noreferrer"
-							class="flex items-center gap-2 px-4 py-3 bg-surface border-2 border-border hover:border-accent/50 hover:bg-surface/80 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] dark:hover:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.15)]"
-							aria-label={`Visit ${social.name} profile`}
-							role="listitem"
-						>
-							<SocialIcon icon={social.icon} size={18} />
-							<span class="font-medium text-sm">{social.name}</span>
-						</a>
-					))}
-				</div>
-			</div>
+      <div class="ct-block">
+        <p class="mono-label">Elsewhere</p>
+        <ul class="ct-links">
+          {siteData.socials.map((social) => (
+            <li>
+              <a href={social.url} target="_blank" rel="noopener noreferrer">
+                <SocialIcon icon={social.icon} size={18} />
+                <span class="ct-link-name">{social.name}</span>
+                <span class="ct-link-handle">{handle(social.url)}</span>
+                <ArrowUpRight className="ct-link-arrow" size={16} aria-hidden="true" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
 
-			{siteData.support && siteData.support.length > 0 && (
-				<div>
-					<h3 class="text-lg font-semibold mb-4 text-text">Support my work</h3>
-					<div class="grid grid-cols-2 gap-3" role="list">
-						{siteData.support.map((support) => (
-							<a
-								href={support.url}
-								target="_blank"
-								rel="noopener noreferrer"
-								class="flex items-center gap-2 px-4 py-3 bg-surface border-2 border-border hover:border-accent/50 hover:bg-surface/80 transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] dark:hover:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.15)]"
-								aria-label={`Support on ${support.name}`}
-								role="listitem"
-							>
-								<SocialIcon icon={support.icon} size={18} />
-								<span class="font-medium text-sm">{support.name}</span>
-							</a>
-						))}
-					</div>
-				</div>
-			)}
+      {siteData.support?.length > 0 && (
+        <div class="ct-block">
+          <p class="mono-label">Support my work</p>
+          <ul class="ct-links">
+            {siteData.support.map((support) => (
+              <li>
+                <a href={support.url} target="_blank" rel="noopener noreferrer">
+                  <SocialIcon icon={support.icon} size={18} />
+                  <span class="ct-link-name">{support.name}</span>
+                  <span class="ct-link-handle">{handle(support.url)}</span>
+                  <ArrowUpRight className="ct-link-arrow" size={16} aria-hidden="true" />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
-			{siteData.crypto && siteData.crypto.length > 0 && (
-				<div>
-					<h3 class="text-lg font-semibold mb-4 text-text">Crypto donations</h3>
-					<div class="flex flex-wrap gap-3" role="list">
-						{siteData.crypto.map((crypto) => (
-							<CryptoDonationButton
-								address={crypto.address}
-								name={crypto.name}
-								network={crypto.network}
-								icon={crypto.icon}
-								client:visible
-							/>
-						))}
-					</div>
-				</div>
-			)}
-		</div>
+      {siteData.crypto?.length > 0 && (
+        <div class="ct-block">
+          <p class="mono-label">Crypto donations</p>
+          <ul class="ct-crypto">
+            {siteData.crypto.map((coin) => (
+              <li>
+                <span class="ct-coin-icon" aria-hidden="true" set:html={coin.icon} />
+                <span class="ct-coin-text">
+                  <span class="ct-coin-name">{coin.name}</span>
+                  <span class="ct-coin-net">{coin.network}</span>
+                </span>
+                <code class="ct-coin-addr" title={coin.address}>{shortAddress(coin.address)}</code>
+                <button
+                  type="button"
+                  class="ct-copy"
+                  data-copy={coin.address}
+                  aria-label={`Copy ${coin.name} address`}
+                >
+                  <Copy className="i-copy" size={16} aria-hidden="true" />
+                  <Check className="i-check" size={16} aria-hidden="true" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
 
-		<div>
-			<div class="flex items-center gap-2 mb-4">
-				<h3 class="text-lg font-semibold text-text">Send a Message</h3>
-				<span class="relative inline-flex items-center group">
-					<button
-						type="button"
-						class="text-muted hover:text-accent transition-colors"
-						aria-label="Contact form messages are emailed directly to me"
-					>
-						<Info size={14} aria-hidden="true" />
-					</button>
-					<span
-						role="tooltip"
-						class="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 whitespace-nowrap bg-text text-bg text-xs px-2 py-1 border-2 border-border opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100"
-					>
-						It lands directly in my email inbox.
-					</span>
-				</span>
-			</div>
-			<ContactForm client:visible />
-		</div>
-	</div>
-</section>
+    <form class="ct-form" data-contact-form novalidate>
+      <input type="hidden" name="access_key" value={FORM_CONFIG.accessKey} />
+      <input type="hidden" name="subject" value={FORM_CONFIG.subject} />
+      <!-- Honeypot field for bots; Web3Forms drops submissions that fill it. -->
+      <input type="checkbox" name="botcheck" class="ct-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+      <p class="mono-label ct-form-label">Send a message · lands in my inbox</p>
+
+      <div class="ct-field">
+        <label for="ct-name">Name</label>
+        <input id="ct-name" name="name" type="text" autocomplete="name" required />
+      </div>
+      <div class="ct-field">
+        <label for="ct-email">Email</label>
+        <input id="ct-email" name="email" type="email" autocomplete="email" inputmode="email" required />
+      </div>
+      <div class="ct-field">
+        <label for="ct-message">Project details</label>
+        <textarea id="ct-message" name="message" rows="6" required placeholder="What are you building, and by when?"></textarea>
+      </div>
+
+      <p class="ct-status" role="status" aria-live="polite" data-status></p>
+
+      <button type="submit" class="btn btn--primary ct-submit" data-submit>
+        <Send size={17} aria-hidden="true" />
+        <span data-submit-label>Send message</span>
+      </button>
+    </form>
+  </div>
+</Sheet>
+
+<script>
+  import { submitContactForm } from '../../utils/form';
+  import { copyToClipboard } from '../../utils/clipboard';
+  import { FORM_CONFIG } from '../../config/constants';
+
+  // ----- Copy buttons -----
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
+    const label = button.getAttribute('aria-label') ?? 'Copy';
+    button.addEventListener('click', async () => {
+      if (!(await copyToClipboard(button.dataset.copy ?? ''))) return;
+      button.classList.add('is-copied');
+      button.setAttribute('aria-label', 'Copied');
+      setTimeout(() => {
+        button.classList.remove('is-copied');
+        button.setAttribute('aria-label', label);
+      }, FORM_CONFIG.copyTimeout);
+    });
+  });
+
+  // ----- Contact form -----
+  const form = document.querySelector<HTMLFormElement>('[data-contact-form]');
+  const status = form?.querySelector<HTMLElement>('[data-status]');
+  const submit = form?.querySelector<HTMLButtonElement>('[data-submit]');
+  const submitLabel = form?.querySelector<HTMLElement>('[data-submit-label]');
+
+  const setStatus = (state: 'idle' | 'error' | 'success', message = '') => {
+    if (!status) return;
+    status.dataset.state = state;
+    status.textContent = message;
+  };
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!form.checkValidity()) {
+      form.classList.add('was-validated');
+      form.querySelector<HTMLElement>(':invalid')?.focus();
+      setStatus('error', 'Please fill in your name, a valid email, and a message.');
+      return;
+    }
+    setStatus('idle');
+    if (submit) submit.disabled = true;
+    if (submitLabel) submitLabel.textContent = 'Sending…';
+
+    const result = await submitContactForm(new FormData(form));
+
+    if (submit) submit.disabled = false;
+    if (submitLabel) submitLabel.textContent = 'Send message';
+    if (result.success) {
+      form.reset();
+      form.classList.remove('was-validated');
+      setStatus('success', FORM_CONFIG.successMessage);
+      setTimeout(() => setStatus('idle'), FORM_CONFIG.successTimeout);
+    } else {
+      setStatus('error', result.message || FORM_CONFIG.errorMessage);
+    }
+  });
+</script>
+
+<style>
+  .ct {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .ct-info {
+    border-right: 1px solid var(--color-border);
+  }
+  .ct-block {
+    padding: 1.25rem var(--pad);
+  }
+  .ct-block + .ct-block {
+    border-top: 1px solid var(--color-border);
+  }
+  .ct-block > .mono-label {
+    margin: 0 0 0.75rem;
+  }
+
+  .ct-email-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .ct-email {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    font-size: clamp(1.3rem, 2.6vw, 2.1rem);
+    font-stretch: 80%;
+    font-weight: 800;
+    line-height: 1.1;
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent);
+    text-decoration-thickness: 3px;
+    text-underline-offset: 0.18em;
+  }
+  .ct-email:hover {
+    color: var(--color-accent);
+  }
+
+  .ct-copy {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: var(--color-bg);
+    border: 2px solid var(--color-border);
+    box-shadow: 3px 3px 0 0 var(--btn-shadow);
+    color: var(--color-text);
+    cursor: pointer;
+    transition: transform 0.15s var(--ease-out), box-shadow 0.15s var(--ease-out);
+  }
+  .ct-copy:hover {
+    box-shadow: 5px 5px 0 0 var(--color-accent);
+    transform: translate(-2px, -2px);
+  }
+  .ct-copy :global(.i-check) {
+    display: none;
+    color: var(--color-accent);
+  }
+  .ct-copy.is-copied :global(.i-check) {
+    display: block;
+  }
+  .ct-copy.is-copied :global(.i-copy) {
+    display: none;
+  }
+
+  .ct-links,
+  .ct-crypto {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .ct-links li + li,
+  .ct-crypto li + li {
+    border-top: 1px solid var(--hair);
+  }
+  .ct-links a {
+    display: grid;
+    grid-template-columns: 1.5rem auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 0;
+    transition: color 0.15s, padding 0.25s var(--ease-out);
+  }
+  .ct-link-name {
+    font-weight: 700;
+  }
+  .ct-link-handle {
+    overflow: hidden;
+    color: var(--color-muted);
+    font: 500 12px/1.3 var(--font-mono);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .ct-links a :global(.ct-link-arrow) {
+    color: var(--color-muted);
+    transition: transform 0.2s var(--ease-out), color 0.15s;
+  }
+  .ct-links a:hover {
+    padding-left: 0.5rem;
+    color: var(--color-accent);
+  }
+  .ct-links a:hover :global(.ct-link-arrow) {
+    color: var(--color-accent);
+    transform: translate(2px, -2px);
+  }
+
+  .ct-crypto li {
+    display: grid;
+    grid-template-columns: 1.5rem minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+  }
+  .ct-coin-icon {
+    display: grid;
+    color: var(--color-accent);
+  }
+  .ct-coin-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .ct-coin-name {
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .ct-coin-net {
+    color: var(--color-muted);
+    font: 500 11px/1.3 var(--font-mono);
+  }
+  .ct-coin-addr {
+    color: var(--color-muted);
+    font: 500 12px/1 var(--font-mono);
+  }
+
+  .ct-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.25rem var(--pad) 1.75rem;
+  }
+  .ct-form-label {
+    margin: 0;
+  }
+  .ct-hp {
+    position: absolute;
+    left: -9999px;
+  }
+  .ct-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .ct-field label {
+    font: 600 12px/1.2 var(--font-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .ct-field input,
+  .ct-field textarea {
+    width: 100%;
+    padding: 0.85rem 0.9rem;
+    background: var(--color-bg);
+    border: 2px solid var(--color-border);
+    color: var(--color-text);
+    font: inherit;
+    font-size: 1rem;
+    transition: box-shadow 0.15s, border-color 0.15s;
+  }
+  .ct-field textarea {
+    min-height: 9rem;
+    resize: vertical;
+  }
+  .ct-field input::placeholder,
+  .ct-field textarea::placeholder {
+    color: var(--color-muted);
+  }
+  .ct-field input:focus,
+  .ct-field textarea:focus {
+    border-color: var(--color-accent);
+    box-shadow: 4px 4px 0 0 var(--color-accent);
+    outline: none;
+  }
+  .ct-form.was-validated :invalid {
+    border-color: #dc2626;
+  }
+
+  .ct-status {
+    min-height: 1.4em;
+    margin: 0;
+    font: 500 13px/1.4 var(--font-mono);
+  }
+  .ct-status[data-state='success'] {
+    color: #15803d;
+  }
+  :global(.dark) .ct-status[data-state='success'] {
+    color: #4ade80;
+  }
+  .ct-status[data-state='error'] {
+    color: #dc2626;
+  }
+  :global(.dark) .ct-status[data-state='error'] {
+    color: #f87171;
+  }
+
+  .ct-submit {
+    align-self: flex-start;
+  }
+
+  @media (max-width: 899px) {
+    .ct {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .ct-info {
+      border-right: 0;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .ct-submit {
+      align-self: stretch;
+    }
+  }
+  @media (max-width: 479px) {
+    .ct-links a {
+      grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+    }
+    .ct-link-handle {
+      display: none;
+    }
+    .ct-coin-addr {
+      display: none;
+    }
+  }
+</style>

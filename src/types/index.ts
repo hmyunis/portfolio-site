@@ -29,6 +29,9 @@ export interface CryptoDonation {
     network?: string;
 }
 
+/** An imported local image (optimised at build time) or a remote URL. */
+export type ImageSource = ImageMetadata | string;
+
 export interface Achievement {
     id: string;
     title: string;
@@ -43,8 +46,8 @@ export interface Achievement {
     verificationLabel?: string;
     secondaryUrl?: string;
     secondaryLabel?: string;
-    image: string;
-    gallery?: string[];
+    image: ImageSource;
+    gallery?: ImageSource[];
 }
 
 export interface SiteData {
@@ -53,6 +56,12 @@ export interface SiteData {
     email: string;
     phone: string;
     location: string;
+    /** Display string, e.g. "9.03°N 38.74°E". */
+    coordinates?: string;
+    /** IANA zone for the hero's local clock, e.g. "Africa/Addis_Ababa". */
+    timeZone?: string;
+    /** Short availability note shown in the hero, e.g. "Open to contract work". */
+    availability?: string;
     resumeUrl: string;
     socials: SocialLink[];
     support?: SocialLink[];
@@ -72,8 +81,11 @@ export interface Project {
     tagline: string;
     description: string;
     fullDescription: string[];
-    thumbnail: string;
-    demoGif: string;
+    thumbnail: ImageSource;
+    /** Animated demo. Prefer `demoVideo`; GIFs are only used when no video exists. */
+    demoGif?: string;
+    /** MP4 demo URL (generate from GIFs with `node scripts/gifs-to-video.mjs`). */
+    demoVideo?: string;
     tags: string[];
     links: {
         live: string | null;

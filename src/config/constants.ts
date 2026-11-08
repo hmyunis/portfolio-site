@@ -1,6 +1,8 @@
 export const SITE_CONFIG = {
     url: "https://hamdimohammed.dev",
     themeColor: "#ef4444",
+    /** Logo text in the navbar. */
+    monogram: "HMY",
     defaultDescription:
         "Hamdi M. Yunis - Cross-Platform Software Engineer. Building scalable, type-safe solutions.",
 } as const;
@@ -25,19 +27,35 @@ export const FORM_CONFIG = {
     copyTimeout: 2000,
 } as const;
 
-export const NAVIGATION_LINKS = [
-    { href: "/#about", label: "About", ariaLabel: "About section" },
-    { href: "/#projects", label: "Work", ariaLabel: "Projects section" },
-    { href: "/#achievements", label: "Achievements", ariaLabel: "Achievements section" },
-    { href: "/#contact", label: "Contact", ariaLabel: "Contact section" },
+/**
+ * The homepage reads as a numbered set of drawing sheets. This list drives the
+ * section numbers, the navbar, the hero's "next sheet" link, and the footer.
+ */
+export const SHEETS = [
+    { id: "about", label: "Index", nav: false },
+    { id: "experience", label: "Experience", nav: true },
+    { id: "skills", label: "Toolkit", nav: true },
+    { id: "projects", label: "Work", nav: true },
+    { id: "achievements", label: "Honors", nav: true },
+    { id: "contact", label: "Contact", nav: true },
 ] as const;
 
+export type SheetId = (typeof SHEETS)[number]["id"];
+
+export function sheetNumber(id: SheetId): string {
+    return String(SHEETS.findIndex((sheet) => sheet.id === id) + 1).padStart(2, "0");
+}
+
+export const SHEET_TOTAL = String(SHEETS.length).padStart(2, "0");
+
+export const NAVIGATION_LINKS = SHEETS.filter((sheet) => sheet.nav).map((sheet) => ({
+    id: sheet.id,
+    href: `/#${sheet.id}`,
+    label: sheet.label,
+    number: sheetNumber(sheet.id),
+}));
+
 export const EXTERNAL_LINKS = {
-    fonts: {
-        google: "https://fonts.googleapis.com",
-        googleStatic: "https://fonts.gstatic.com",
-        inter: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap",
-    },
     api: {
         web3forms: "https://api.web3forms.com",
     },

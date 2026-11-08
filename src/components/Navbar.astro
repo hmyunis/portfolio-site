@@ -1,25 +1,428 @@
 ---
-import ThemeToggle from './ui/ThemeToggle';
-import MobileMenuWrapper from './features/MobileMenuWrapper';
-import { NAVIGATION_LINKS } from '../config/constants';
+import { NAVIGATION_LINKS, SHEET_TOTAL, SITE_CONFIG } from '../config/constants';
+import siteData from '../data/siteData.json';
+
+interface Props {
+  /** Sheet label shown next to the logo before scroll-spy takes over. */
+  current?: { number: string; label: string };
+}
+
+const { current = { number: '01', label: 'Index' } } = Astro.props;
+const initials = SITE_CONFIG.monogram;
+// "/ 06" only makes sense for the homepage's two-digit sheet numbers, not "04.01" or "404".
+const isHomeSheet = /^\d\d$/.test(current.number);
 ---
 
-<nav class="sticky top-0 z-50 w-full bg-bg/80 backdrop-blur-md border-b-[2px] border-border shadow-[0_3px_0px_0px_rgba(0,0,0,0.1)] dark:shadow-[0_3px_0px_0px_rgba(255,255,255,0.1)]" role="navigation" aria-label="Main navigation">
-  <div class="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
-    <a href="/" class="text-xl font-bold tracking-tight" aria-label="Home">
-      HMY<span class="text-accent">.</span>
+<nav class="nav" aria-label="Main navigation" data-nav>
+  <div class="frame nav-inner">
+    <a href="/" class="nav-logo" aria-label={`${siteData.name}, home`}>
+      {initials}<span class="nav-logo-stop" aria-hidden="true"></span>
     </a>
 
-    <div class="flex items-center gap-4">
-      <div class="hidden md:flex gap-6 text-sm font-medium text-muted">
-        {NAVIGATION_LINKS.map((link) => (
-          <a href={link.href} class="hover:text-text transition-colors" aria-label={link.ariaLabel}>
+    <p class="nav-sheet" aria-hidden="true">
+      <span>Sheet</span>
+      <span class="nav-sheet-num" data-nav-num>{current.number}</span>
+      {isHomeSheet && <span class="nav-sheet-of">/ {SHEET_TOTAL}</span>}
+      <span class="nav-sheet-label" data-nav-label>{current.label}</span>
+    </p>
+
+    <ul class="nav-links">
+      {NAVIGATION_LINKS.map((link) => (
+        <li>
+          <a href={link.href} data-nav-link={link.id}>
+            <span class="nav-link-num" aria-hidden="true">{link.number}</span>
             {link.label}
           </a>
-        ))}
-      </div>
-      <MobileMenuWrapper client:media="(max-width: 768px)" />
-      <ThemeToggle client:idle />
+        </li>
+      ))}
+    </ul>
+
+    <div class="nav-actions">
+      <button type="button" class="nav-icon" data-theme-toggle aria-label="Switch to dark theme">
+        <svg class="i-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+        </svg>
+        <svg class="i-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" aria-hidden="true">
+          <rect x="8" y="8" width="8" height="8" />
+          <path d="M12 1v3M12 20v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M1 12h3M20 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="nav-icon nav-menu-btn"
+        data-menu-toggle
+        aria-expanded="false"
+        aria-controls="nav-menu"
+        aria-label="Open menu"
+      >
+        <span class="burger" aria-hidden="true"><span></span><span></span></span>
+      </button>
     </div>
   </div>
+
+  <div id="nav-menu" class="menu" data-menu hidden>
+    <ul class="frame menu-list">
+      {NAVIGATION_LINKS.map((link, i) => (
+        <li style={`--i:${i}`}>
+          <a href={link.href} data-nav-link={link.id}>
+            <span class="menu-num">{link.number}</span>
+            <span class="menu-label">{link.label}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+    <p class="frame menu-foot">
+      <a href={`mailto:${siteData.email}`}>{siteData.email}</a>
+    </p>
+  </div>
 </nav>
+
+<script>
+  const nav = document.querySelector<HTMLElement>('[data-nav]');
+  if (nav) setupNav(nav);
+
+  function setupNav(nav: HTMLElement) {
+    // ----- Theme -----
+    const themeButton = nav.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+    const syncThemeLabel = () => {
+      const dark = document.documentElement.classList.contains('dark');
+      themeButton?.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+    };
+    syncThemeLabel();
+    themeButton?.addEventListener('click', () => {
+      const dark = document.documentElement.classList.toggle('dark');
+      try {
+        localStorage.theme = dark ? 'dark' : 'light';
+      } catch {
+        /* storage blocked: the choice simply won't persist */
+      }
+      syncThemeLabel();
+    });
+
+    // ----- Mobile menu -----
+    const menuButton = nav.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+    const menu = nav.querySelector<HTMLElement>('[data-menu]');
+    const setMenu = (open: boolean) => {
+      if (!menuButton || !menu) return;
+      menuButton.setAttribute('aria-expanded', String(open));
+      menuButton.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      menu.hidden = !open;
+      nav.classList.toggle('is-open', open);
+      document.documentElement.style.overflow = open ? 'hidden' : '';
+      if (open) menu.querySelector<HTMLAnchorElement>('a')?.focus();
+    };
+    menuButton?.addEventListener('click', () => setMenu(menu?.hidden ?? true));
+    menu?.addEventListener('click', (event) => {
+      if ((event.target as HTMLElement).closest('a')) setMenu(false);
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && menu && !menu.hidden) {
+        setMenu(false);
+        menuButton?.focus();
+      }
+    });
+    matchMedia('(min-width: 900px)').addEventListener('change', (event) => {
+      if (event.matches) setMenu(false);
+    });
+
+    // ----- Scroll spy: highlight the sheet in view and show its number -----
+    const num = nav.querySelector('[data-nav-num]');
+    const label = nav.querySelector('[data-nav-label]');
+    const links = [...nav.querySelectorAll<HTMLAnchorElement>('[data-nav-link]')];
+    const sections = [...document.querySelectorAll<HTMLElement>('[data-sheet]')];
+    if (!sections.length) return;
+
+    const visible = new Map<HTMLElement, number>();
+    const update = () => {
+      let best: HTMLElement | null = null;
+      let bestRatio = 0;
+      for (const [section, ratio] of visible) {
+        if (ratio > bestRatio) {
+          best = section;
+          bestRatio = ratio;
+        }
+      }
+      if (!best) return;
+      const id = best.id;
+      if (num) num.textContent = best.dataset.sheetNumber ?? '';
+      if (label) label.textContent = best.dataset.sheetLabel ?? '';
+      links.forEach((link) => {
+        if (link.dataset.navLink === id) link.setAttribute('aria-current', 'true');
+        else link.removeAttribute('aria-current');
+      });
+    };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          // Weight by how much of the viewport the section fills, not how much of the section shows.
+          const share = entry.intersectionRect.height / window.innerHeight;
+          if (entry.isIntersecting) visible.set(entry.target as HTMLElement, share);
+          else visible.delete(entry.target as HTMLElement);
+        }
+        update();
+      },
+      { threshold: [0, 0.1, 0.25, 0.5, 0.75, 1] }
+    );
+    sections.forEach((section) => observer.observe(section));
+  }
+</script>
+
+<style>
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 2px solid var(--color-border);
+  }
+  /* The blur lives on a pseudo-element: backdrop-filter on .nav itself would turn it into
+     the containing block for the fixed-position mobile menu and clip it to the bar. */
+  .nav::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    height: var(--nav-h);
+  }
+
+  .nav-logo {
+    display: inline-flex;
+    align-items: flex-end;
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-stretch: 72%;
+    font-weight: 900;
+    letter-spacing: 0;
+    line-height: 1;
+  }
+  .nav-logo-stop {
+    width: 0.22em;
+    height: 0.22em;
+    margin: 0 0 0.08em 0.06em;
+    background: var(--color-accent);
+    transition: transform 0.25s var(--ease-out);
+  }
+  .nav-logo:hover .nav-logo-stop {
+    transform: rotate(45deg);
+  }
+
+  .nav-sheet {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    margin: 0;
+    padding-left: 1.5rem;
+    border-left: 1px solid var(--hair);
+    color: var(--color-muted);
+    font: 500 11px/1 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .nav-sheet-num {
+    color: var(--color-accent);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .nav-sheet-label {
+    color: var(--color-text);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 0.25rem;
+    margin: 0 0 0 auto;
+    padding: 0;
+    list-style: none;
+  }
+  .nav-links a {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    padding: 0.55rem 0.7rem;
+    color: var(--color-muted);
+    font-size: 0.92rem;
+    font-weight: 600;
+    transition: color 0.15s;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    left: 0.7rem;
+    right: 0.7rem;
+    bottom: 0.2rem;
+    height: 2px;
+    background: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s var(--ease-out);
+  }
+  .nav-links a:hover,
+  .nav-links a[aria-current] {
+    color: var(--color-text);
+  }
+  .nav-links a:hover::after,
+  .nav-links a[aria-current]::after {
+    transform: scaleX(1);
+  }
+  .nav-link-num {
+    color: var(--color-accent);
+    font: 500 10px/1 var(--font-mono);
+  }
+
+  .nav-actions {
+    display: flex;
+    gap: 0.6rem;
+  }
+  .nav-icon {
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    background: var(--color-bg);
+    border: 2px solid var(--color-border);
+    box-shadow: 3px 3px 0 0 var(--btn-shadow);
+    color: var(--color-text);
+    cursor: pointer;
+    transition:
+      transform 0.15s var(--ease-out),
+      box-shadow 0.15s var(--ease-out);
+  }
+  .nav-icon:hover {
+    box-shadow: 5px 5px 0 0 var(--color-accent);
+    transform: translate(-2px, -2px);
+  }
+  .i-sun {
+    display: none;
+  }
+  :global(.dark) .i-sun {
+    display: block;
+  }
+  :global(.dark) .i-moon {
+    display: none;
+  }
+
+  .nav-menu-btn {
+    display: none;
+  }
+  .burger {
+    position: relative;
+    display: block;
+    width: 18px;
+    height: 10px;
+  }
+  .burger span {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: currentColor;
+    transition: transform 0.25s var(--ease-out), top 0.25s var(--ease-out);
+  }
+  .burger span:first-child {
+    top: 0;
+  }
+  .burger span:last-child {
+    top: 8px;
+  }
+  .is-open .burger span:first-child {
+    top: 4px;
+    transform: rotate(45deg);
+  }
+  .is-open .burger span:last-child {
+    top: 4px;
+    transform: rotate(-45deg);
+  }
+
+  /* ----- Full-screen mobile menu ----- */
+  .menu {
+    position: fixed;
+    inset: calc(var(--nav-h) + 2px) 0 0;
+    z-index: 49;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow-y: auto;
+    padding-block: 1rem 2rem;
+    background: var(--color-bg);
+  }
+  .menu[hidden] {
+    display: none;
+  }
+  .menu-list {
+    margin: 0;
+    list-style: none;
+  }
+  .menu-list li {
+    border-bottom: 1px solid var(--color-border);
+    animation: menu-in 0.45s var(--ease-out) both;
+    animation-delay: calc(var(--i) * 50ms);
+  }
+  .menu-list a {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.9rem 0;
+  }
+  .menu-num {
+    padding-top: 0.5rem;
+    color: var(--color-accent);
+    font: 500 12px/1 var(--font-mono);
+  }
+  .menu-label {
+    font-family: var(--font-display);
+    font-size: clamp(2.6rem, 13vw, 4.5rem);
+    font-stretch: 72%;
+    font-weight: 900;
+    line-height: 0.9;
+    text-transform: uppercase;
+  }
+  .menu-list a[aria-current] .menu-label {
+    color: var(--color-accent);
+  }
+  .menu-foot {
+    margin-top: 2rem;
+    font: 500 13px/1.4 var(--font-mono);
+  }
+  .menu-foot a {
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+  }
+  @keyframes menu-in {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+  }
+
+  @media (max-width: 1099px) {
+    .nav-sheet-label {
+      display: none;
+    }
+  }
+  @media (max-width: 899px) {
+    .nav-links {
+      display: none;
+    }
+    .nav-actions {
+      margin-left: auto;
+    }
+    .nav-menu-btn {
+      display: grid;
+    }
+  }
+  @media (max-width: 380px) {
+    .nav-sheet {
+      display: none;
+    }
+  }
+</style>

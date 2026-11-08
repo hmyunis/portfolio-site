@@ -1,36 +1,140 @@
 ---
 import TechIcon from '../TechIcon';
+import Sheet from '../Sheet.astro';
+import SectionHeader from '../SectionHeader.astro';
 import siteData from '../../data/siteData.json';
+
+const { forte, exposure } = siteData.skills;
 ---
 
-<section class="py-20 border-t-[2px] border-border" id="skills">
-	<div class="mb-12">
-		<h2 class="text-3xl font-bold mb-3">Technical Arsenal</h2>
-		<p class="text-muted">Technologies I work with regularly</p>
-	</div>
-			<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" role="list">
-				{siteData.skills.forte.map((skill) => (
-					<div class="group flex flex-col items-center justify-center gap-3 p-6 border-[2px] border-border bg-surface/50 hover:bg-surface hover:border-accent/50 transition-all duration-300 card-hover cursor-pointer" role="listitem" tabindex="0" aria-label={`${skill.name} skill`}>
-				<div class="text-accent group-hover:scale-110 transition-transform duration-300">
-					<TechIcon name={skill.name} />
-				</div>
-				<span class="font-medium text-sm text-center">{skill.name}</span>
-			</div>
-		))}
-	</div>
-</section>
+<Sheet id="skills">
+  <SectionHeader
+    sheet="skills"
+    title="Toolkit"
+    lede="What I reach for every week, and what I have shipped with or keep exploring."
+    meta={`${forte.length} core · ${exposure.length} more`}
+  />
 
-<section class="py-20 border-t-[2px] border-border">
-	<div class="mb-12">
-		<h2 class="text-3xl font-bold mb-3">Additional Exposure</h2>
-		<p class="text-muted">Technologies I've worked with and continue to explore</p>
-	</div>
-	<div class="flex flex-wrap gap-3" role="list">
-		{siteData.skills.exposure.map((tech) => (
-			<div class="group flex items-center gap-2 px-4 py-2 border-[2px] border-border bg-surface/30 hover:bg-surface hover:border-accent/50 transition-all duration-300 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] dark:hover:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.15)]" role="listitem">
-				<TechIcon name={tech} />
-				<span class="font-medium text-sm">{tech}</span>
-			</div>
-		))}
-	</div>
-</section>
+  <div class="tk">
+    <div class="tk-group">
+      <p class="mono-label tk-label">A — Daily drivers</p>
+      <ul class="tk-grid">
+        {forte.map((skill, i) => (
+          <li class="tk-cell" data-reveal style={`--d:${i % 6}`}>
+            <span class="tk-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <span class="tk-icon" aria-hidden="true"><TechIcon name={skill.name} /></span>
+            <span class="tk-name">{skill.name}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="tk-group tk-group--more">
+      <p class="mono-label tk-label">B — Also shipped with</p>
+      <ul class="tk-list" data-reveal>
+        {exposure.map((tech) => <li>{tech}</li>)}
+      </ul>
+    </div>
+  </div>
+</Sheet>
+
+<style>
+  .tk-label {
+    padding: 0.85rem var(--pad);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .tk-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    /* Cells draw their own right/bottom rules; this clips the outer edge so lines never double. */
+    overflow: hidden;
+  }
+  .tk-cell {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1.6rem;
+    min-height: 8.5rem;
+    margin: 0 -1px -1px 0;
+    padding: 0.9rem 1rem 1rem;
+    border-right: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    transition: background-color 0.2s, color 0.2s;
+  }
+  .tk-num {
+    position: absolute;
+    top: 0.85rem;
+    right: 0.9rem;
+    color: var(--color-muted);
+    font: 500 10px/1 var(--font-mono);
+  }
+  .tk-icon {
+    display: block;
+    width: 1.75rem;
+    height: 1.75rem;
+    color: var(--color-accent);
+    transition: transform 0.3s var(--ease-out);
+  }
+  .tk-icon > :global(div) {
+    width: 100%;
+    height: 100%;
+  }
+  .tk-icon :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+  .tk-name {
+    font-size: 1.05rem;
+    font-stretch: 88%;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .tk-cell:hover {
+    background: var(--color-text);
+    color: var(--color-bg);
+  }
+  .tk-cell:hover .tk-num {
+    color: inherit;
+  }
+  .tk-cell:hover .tk-icon {
+    transform: scale(1.12) rotate(-6deg);
+  }
+
+  .tk-group--more {
+    border-top: 1px solid var(--color-border);
+  }
+  .tk-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin: 0;
+    padding: 1.25rem var(--pad) 1.5rem;
+    list-style: none;
+  }
+  .tk-list li {
+    padding: 0.4rem 0.7rem;
+    border: 1px solid var(--color-border);
+    font: 500 12.5px/1.2 var(--font-mono);
+    transition: background-color 0.15s, color 0.15s, transform 0.15s var(--ease-out);
+  }
+  .tk-list li:hover {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: var(--color-on-accent);
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 479px) {
+    .tk-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .tk-cell {
+      min-height: 7rem;
+    }
+  }
+</style>

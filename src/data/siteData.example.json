@@ -4,6 +4,9 @@
     "email": "your.email@example.com",
     "phone": "+1234567890",
     "location": "Your City, Country",
+    "coordinates": "0.00°N 0.00°E",
+    "timeZone": "Etc/UTC",
+    "availability": "Open to new projects",
     "resumeUrl": "/your-resume.pdf",
     "socials": [
         { "name": "GitHub", "url": "https://github.com/yourusername", "icon": "github" },

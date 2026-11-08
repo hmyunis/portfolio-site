@@ -1,31 +1,210 @@
 ---
+import { ArrowLeft, ArrowRight, Home } from 'lucide-react';
 import Layout from '../layouts/Layout.astro';
-import { Home } from 'lucide-react';
-import BackButton from '../components/features/404BackButton';
+import { NAVIGATION_LINKS } from '../config/constants';
+
+// Built to dist/404.html. Static hosts serve this file, with a 404 status, for any
+// unknown URL (see public/.htaccess for Apache/cPanel and the README for other hosts).
 ---
 
-<Layout title="404 - Page Not Found">
-	<main class="max-w-4xl mx-auto px-6 py-32">
-		<div class="text-center space-y-8">
-			<div class="space-y-4">
-				<h1 class="text-8xl md:text-9xl font-bold text-accent">404</h1>
-				<h2 class="text-3xl md:text-4xl font-bold">Page Not Found</h2>
-				<p class="text-muted text-lg max-w-md mx-auto">
-					The page you're looking for doesn't exist or has been moved.
-				</p>
-			</div>
+<Layout title="404 - Page Not Found" sheet={{ number: '404', label: 'Missing' }} noindex>
+  <section class="frame nf" aria-labelledby="nf-title">
+    <div class="sheet-box">
+      <p class="nf-strip"><span>Sheet 404</span><span>Not in this set</span></p>
 
-			<div class="flex flex-wrap justify-center gap-4 pt-8">
-				<a
-					href="/"
-					class="flex items-center gap-2 px-6 py-3 bg-accent text-white border-[2px] border-border font-semibold hover:opacity-90 transition-all shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,0.1)] hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,0.2)] dark:hover:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.15)]"
-					aria-label="Go to homepage"
-				>
-					<Home size={18} aria-hidden="true" />
-					Go Home
-				</a>
-				<BackButton client:load />
-			</div>
-		</div>
-	</main>
+      <div class="nf-body">
+        <p class="nf-code" aria-hidden="true">404<span class="nf-stop"></span></p>
+        <div class="nf-copy">
+          <h1 id="nf-title" class="nf-title">This sheet is missing from the set.</h1>
+          <p class="nf-text">
+            There is no page at <code class="nf-path" data-path>this address</code>. It may have moved, or the link may
+            have a typo.
+          </p>
+          <p class="nf-hint" data-project-hint hidden>
+            Looking for a project? <a href="/#projects">Browse all work</a>.
+          </p>
+          <div class="nf-actions">
+            <a href="/" class="btn btn--primary"><Home size={17} aria-hidden="true" /> Back to index</a>
+            <button type="button" class="btn" data-back hidden>
+              <ArrowLeft size={17} aria-hidden="true" /> Go back
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <nav class="nf-sheets" aria-label="Sections">
+        <p class="mono-label nf-sheets-label">Or jump to a sheet</p>
+        <ul>
+          {NAVIGATION_LINKS.map((link) => (
+            <li>
+              <a href={link.href}>
+                <span class="nf-num">{link.number}</span>
+                <span class="nf-label">{link.label}</span>
+                <ArrowRight className="nf-arrow" size={18} aria-hidden="true" />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+  </section>
 </Layout>
+
+<script>
+  // Show which URL was missing. textContent keeps the user-controlled path inert.
+  const pathEl = document.querySelector<HTMLElement>('[data-path]');
+  let path = location.pathname;
+  try {
+    path = decodeURIComponent(path);
+  } catch {
+    /* malformed escape: show it raw */
+  }
+  if (pathEl && path !== '/404' && path !== '/404/' && path !== '/404.html') {
+    pathEl.textContent = path.length > 80 ? `${path.slice(0, 77)}…` : path;
+  }
+
+  if (location.pathname.startsWith('/projects/')) {
+    document.querySelector<HTMLElement>('[data-project-hint]')?.removeAttribute('hidden');
+  }
+
+  // "Go back" only makes sense when the visitor arrived from this site.
+  const back = document.querySelector<HTMLButtonElement>('[data-back]');
+  const cameFromHere = document.referrer && new URL(document.referrer).origin === location.origin;
+  if (back && cameFromHere && history.length > 1) {
+    back.hidden = false;
+    back.addEventListener('click', () => history.back());
+  }
+</script>
+
+<style>
+  .nf {
+    padding-top: 1.25rem;
+  }
+  .nf-strip {
+    display: flex;
+    justify-content: space-between;
+    margin: 0;
+    padding: 0.7rem var(--pad);
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-muted);
+    font: 500 11px/1.4 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .nf-body {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: end;
+    gap: 1.5rem 3rem;
+    padding: clamp(2rem, 6vw, 4rem) var(--pad) clamp(2rem, 5vw, 3rem);
+  }
+  .nf-code {
+    margin: 0;
+    font-size: clamp(6rem, 24vw, 18rem);
+    font-stretch: 62%;
+    font-weight: 900;
+    line-height: 0.8;
+  }
+  .nf-stop {
+    display: inline-block;
+    width: 0.15em;
+    height: 0.15em;
+    margin-left: 0.03em;
+    background: var(--color-accent);
+  }
+  .nf-title {
+    margin: 0 0 0.75rem;
+    font-size: clamp(1.5rem, 3.2vw, 2.6rem);
+    font-stretch: 80%;
+    font-weight: 800;
+  }
+  .nf-text,
+  .nf-hint {
+    max-width: 52ch;
+    margin: 0 0 1rem;
+    color: var(--color-muted);
+  }
+  .nf-hint a {
+    color: var(--color-text);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .nf-hint a:hover {
+    color: var(--color-accent);
+  }
+  .nf-path {
+    padding: 1px 6px;
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    font: 500 0.9em/1.4 var(--font-mono);
+    overflow-wrap: anywhere;
+  }
+  .nf-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    margin-top: 1.5rem;
+  }
+
+  .nf-sheets {
+    border-top: 1px solid var(--color-border);
+  }
+  .nf-sheets-label {
+    margin: 0;
+    padding: 0.85rem var(--pad);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .nf-sheets ul {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .nf-sheets li + li {
+    border-left: 1px solid var(--color-border);
+  }
+  .nf-sheets a {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: 1rem var(--pad);
+    transition: background-color 0.15s, color 0.15s;
+  }
+  .nf-num {
+    color: var(--color-accent);
+    font: 500 11px/1 var(--font-mono);
+  }
+  .nf-label {
+    font-size: 1.25rem;
+    font-stretch: 78%;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+  .nf-sheets a :global(.nf-arrow) {
+    align-self: center;
+    margin-left: auto;
+    transition: transform 0.2s var(--ease-out);
+  }
+  .nf-sheets a:hover {
+    background: var(--color-text);
+    color: var(--color-bg);
+  }
+  .nf-sheets a:hover :global(.nf-arrow) {
+    transform: translateX(4px);
+  }
+
+  @media (max-width: 899px) {
+    .nf-body {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .nf-sheets ul {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .nf-sheets li + li {
+      border-top: 1px solid var(--color-border);
+      border-left: 0;
+    }
+  }
+</style>

@@ -1,0 +1,102 @@
+---
+import { SHEET_TOTAL, sheetNumber, type SheetId } from '../config/constants';
+
+interface Props {
+  sheet: SheetId;
+  title: string;
+  lede?: string;
+  /** Small fact shown on the right, e.g. "15 entries". */
+  meta?: string;
+}
+
+const { sheet, title, lede, meta } = Astro.props;
+const number = sheetNumber(sheet);
+---
+
+<header class="sh">
+  <div class="sh-strip">
+    <span class="sh-index">Sheet {number}<span class="sh-of"> / {SHEET_TOTAL}</span></span>
+    {meta && <span class="sh-meta">{meta}</span>}
+  </div>
+  <div class="sh-body">
+    <h2 id={`${sheet}-title`} class="sh-title" data-reveal>
+      <span class="sh-num" aria-hidden="true">{number}</span>
+      <span>{title}<span class="sh-stop" aria-hidden="true"></span></span>
+    </h2>
+    {lede && <p class="sh-lede" data-reveal style="--d:1">{lede}</p>}
+    <slot />
+  </div>
+</header>
+
+<style>
+  .sh {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .sh-strip {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem var(--pad);
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-muted);
+    font: 500 11px/1.4 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .sh-index {
+    color: var(--color-text);
+  }
+  .sh-of {
+    color: var(--color-muted);
+  }
+
+  .sh-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 26rem);
+    align-items: end;
+    gap: 1rem 3rem;
+    padding: clamp(1.75rem, 4vw, 3rem) var(--pad) clamp(1.25rem, 3vw, 2rem);
+  }
+
+  .sh-title {
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(2.6rem, 7.2vw, 6.5rem);
+    font-stretch: 72%;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    line-height: 0.85;
+    text-transform: uppercase;
+  }
+  .sh-num {
+    margin-top: 0.08em;
+    margin-right: 0.3em;
+    color: var(--color-accent);
+    font: 500 clamp(11px, 1vw, 13px) / 1 var(--font-mono);
+    letter-spacing: 0.08em;
+  }
+  .sh-stop {
+    display: inline-block;
+    width: 0.17em;
+    height: 0.17em;
+    margin-left: 0.04em;
+    background: var(--color-accent);
+  }
+
+  .sh-lede {
+    max-width: 44ch;
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  @media (max-width: 767px) {
+    .sh-body {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

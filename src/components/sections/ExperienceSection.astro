@@ -1,36 +1,162 @@
 ---
+import { ArrowUpRight } from 'lucide-react';
+import Sheet from '../Sheet.astro';
+import SectionHeader from '../SectionHeader.astro';
 import siteData from '../../data/siteData.json';
+
+const entries = siteData.experience.map((item) => ({
+  ...item,
+  current: /present/i.test(item.period),
+}));
+const years = entries.flatMap((item) => item.period.match(/\d{4}/g) ?? []).map(Number);
+const span = years.length ? `${Math.min(...years)}–${new Date().getFullYear()}` : '';
 ---
 
-<section class="py-20 border-t-[2px] border-border" id="experience">
-	<div class="grid md:grid-cols-3 gap-12">
-		<div class="md:col-span-1">
-			<h2 class="text-3xl font-bold mb-4">Experience</h2>
-			<p class="text-muted leading-relaxed">A timeline of leadership and engineering.</p>
-		</div>
-		<div class="md:col-span-2 space-y-12" role="list">
-			{siteData.experience.map((exp) => (
-				<article class="relative pl-8 border-l-[2px] border-border hover:border-accent/50 transition-colors duration-300 group" role="listitem">
-					<span class="absolute -left-[10px] top-2 w-5 h-5 bg-accent border-[2px] border-bg group-hover:border-accent/20 transition-all duration-300" aria-hidden="true"></span>
-					<h3 class="text-xl font-bold mb-2 group-hover:text-accent transition-colors">{exp.role}</h3>
-					<div class="flex flex-col sm:flex-row sm:justify-between gap-2 text-sm text-muted mb-3 font-mono">
-						{exp.companyUrl ? (
-							<a
-								href={exp.companyUrl}
-								target="_blank"
-								rel="noopener noreferrer"
-								class="font-semibold hover:text-accent transition-colors sm:max-w-[30rem]"
-							>
-								{exp.company}
-							</a>
-						) : (
-							<span class="font-semibold sm:max-w-[30rem]">{exp.company}</span>
-						)}
-						<time class="shrink-0 whitespace-nowrap">{exp.period}</time>
-					</div>
-					<p class="text-muted leading-relaxed">{exp.desc}</p>
-				</article>
-			))}
-		</div>
-	</div>
-</section>
+<Sheet id="experience">
+  <SectionHeader
+    sheet="experience"
+    title="Experience"
+    lede="Leadership, engineering, and teaching, from self-taught beginnings to running a software company."
+    meta={span ? `${entries.length} entries · ${span}` : `${entries.length} entries`}
+  />
+
+  <ol class="xp">
+    {entries.map((item, i) => (
+      <li class:list={['xp-row', { 'is-current': item.current }]} data-reveal style={`--d:${i % 3}`}>
+        <span class="xp-index" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+        <p class="xp-period">
+          <time>{item.period}</time>
+          {item.current && <span class="xp-now">Now</span>}
+        </p>
+        <div class="xp-head">
+          <h3 class="xp-role">{item.role}</h3>
+          {item.companyUrl ? (
+            <a class="xp-company" href={item.companyUrl} target="_blank" rel="noopener noreferrer">
+              {item.company}
+              <ArrowUpRight size={14} aria-hidden="true" />
+            </a>
+          ) : (
+            <p class="xp-company">{item.company}</p>
+          )}
+        </div>
+        <p class="xp-desc">{item.desc}</p>
+      </li>
+    ))}
+  </ol>
+</Sheet>
+
+<style>
+  .xp {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .xp-row {
+    position: relative;
+    display: grid;
+    grid-template-columns: 3rem minmax(10rem, 13rem) minmax(0, 1fr) minmax(0, 1.25fr);
+    align-items: start;
+    gap: 0.5rem 2rem;
+    padding: 1.5rem var(--pad);
+    transition: background-color 0.2s;
+  }
+  .xp-row + .xp-row {
+    border-top: 1px solid var(--color-border);
+  }
+  /* Accent rule that draws in from the left on hover. */
+  .xp-row::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    bottom: 0;
+    left: 0;
+    width: 4px;
+    background: var(--color-accent);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.3s var(--ease-out);
+  }
+  .xp-row:hover {
+    background: color-mix(in srgb, var(--color-surface) 60%, transparent);
+  }
+  .xp-row:hover::before,
+  .xp-row.is-current::before {
+    transform: scaleY(1);
+  }
+
+  .xp-index {
+    padding-top: 0.3rem;
+    color: var(--color-accent);
+    font: 500 11px/1 var(--font-mono);
+  }
+
+  .xp-period {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    padding-top: 0.15rem;
+    font: 500 13px/1.4 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .xp-now {
+    padding: 2px 6px;
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .xp-role {
+    margin: 0 0 0.4rem;
+    font-size: clamp(1.15rem, 1.6vw, 1.45rem);
+    font-stretch: 88%;
+    font-weight: 700;
+    line-height: 1.15;
+  }
+  .xp-company {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0;
+    color: var(--color-muted);
+    font: 500 12.5px/1.45 var(--font-mono);
+  }
+  a.xp-company {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+  a.xp-company:hover {
+    color: var(--color-accent);
+  }
+
+  .xp-desc {
+    max-width: 60ch;
+    margin: 0;
+    color: var(--color-muted);
+    font-size: 0.97rem;
+  }
+
+  @media (max-width: 1023px) {
+    .xp-row {
+      grid-template-columns: 2.5rem minmax(0, 1fr);
+    }
+    .xp-index {
+      grid-row: span 3;
+    }
+  }
+  @media (max-width: 599px) {
+    .xp-row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.4rem;
+    }
+    .xp-index {
+      display: none;
+    }
+  }
+</style>

@@ -1,6 +1,9 @@
 ---
 import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
 import '../styles/global.css';
+import displayFont from '@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2?url';
+import monoFont from '@fontsource/ibm-plex-mono/files/ibm-plex-mono-latin-500-normal.woff2?url';
 import siteData from '../data/siteData.json';
 import { SITE_CONFIG, EXTERNAL_LINKS } from '../config/constants';
 
@@ -9,19 +12,23 @@ interface Props {
   description?: string;
   image?: string;
   imageAlt?: string;
+  /** Sheet shown in the navbar on pages without scroll-spied sections. */
+  sheet?: { number: string; label: string };
+  /** Keep the page out of search results and skip canonical/og:url (e.g. the 404 page). */
+  noindex?: boolean;
 }
 
-const { title, description = SITE_CONFIG.defaultDescription, image, imageAlt } = Astro.props;
+const { title, description = SITE_CONFIG.defaultDescription, image, imageAlt, sheet, noindex = false } = Astro.props;
 const fullTitle = title.includes('|') ? title : `${title} | ${siteData.name}`;
 const currentUrl = new URL(Astro.url.pathname, SITE_CONFIG.url).href;
-const ogImage = image || `${SITE_CONFIG.url}/og-image.png`;
+const ogImage = image ? new URL(image, SITE_CONFIG.url).href : `${SITE_CONFIG.url}/og-image.png`;
 const ogImageAlt = imageAlt || `${siteData.name} - ${siteData.role}`;
 const xSocial = siteData.socials.find(s => s.name === 'X');
 const twitterHandle = xSocial ? xSocial.url.replace(/https?:\/\/(www\.)?(x\.com|twitter\.com)\//, '@').replace(/\/$/, '') : '';
 ---
 
 <!doctype html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -29,25 +36,34 @@ const twitterHandle = xSocial ? xSocial.url.replace(/https?:\/\/(www\.)?(x\.com|
     <meta name="author" content={siteData.name} />
     <meta name="theme-color" content={SITE_CONFIG.themeColor} />
     <meta name="keywords" content={`${siteData.name}, ${siteData.role}, portfolio, software engineer, developer, ${siteData.skills.forte.map(s => s.name).join(', ')}`} />
-    <meta name="robots" content="index, follow" />
-    <meta name="language" content="English" />
-    <meta name="revisit-after" content="7 days" />
-    
+    <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow'} />
+
     <title>{fullTitle}</title>
-    
+
+    <!-- Theme is applied before first paint to avoid a light/dark flash. -->
+    <script is:inline>
+      try {
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      } catch {}
+      document.documentElement.classList.add('js');
+    </script>
+
+    <!-- The display face draws the hero name (the LCP element), so fetch it with the HTML. -->
+    <link rel="preload" href={displayFont} as="font" type="font/woff2" crossorigin />
+    <!-- Mono 500 sets every label strip; preloading it stops a small shift when it swaps in. -->
+    <link rel="preload" href={monoFont} as="font" type="font/woff2" crossorigin />
+
     <meta property="og:type" content="website" />
-    <meta property="og:url" content={currentUrl} />
+    {!noindex && <meta property="og:url" content={currentUrl} />}
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
     <meta property="og:image:alt" content={ogImageAlt} />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:type" content="image/png" />
     <meta property="og:site_name" content={siteData.name} />
     <meta property="og:locale" content="en_US" />
-    <meta property="og:locale:alternate" content="en_US" />
-    
+
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content={twitterHandle} />
     <meta name="twitter:creator" content={twitterHandle} />
@@ -55,23 +71,15 @@ const twitterHandle = xSocial ? xSocial.url.replace(/https?:\/\/(www\.)?(x\.com|
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
     <meta name="twitter:image:alt" content={ogImageAlt} />
-    
-    <meta name="linkedin:owner" content={siteData.socials.find(s => s.name === 'LinkedIn')?.url || ''} />
-    
-    <link rel="canonical" href={currentUrl} />
-        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    {!noindex && <link rel="canonical" href={currentUrl} />}
+    <!-- favicon.svg is skipped: it wraps a 142 KB embedded PNG. The 9 KB PNG looks identical. -->
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="shortcut icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    
-    <link rel="preconnect" href={EXTERNAL_LINKS.fonts.google} />
-    <link rel="preconnect" href={EXTERNAL_LINKS.fonts.googleStatic} crossorigin />
-    <link rel="preload" href={EXTERNAL_LINKS.fonts.inter} as="style" />
-    <link rel="stylesheet" href={EXTERNAL_LINKS.fonts.inter} media="print" onload="this.media='all'" />
-    <noscript><link rel="stylesheet" href={EXTERNAL_LINKS.fonts.inter} /></noscript>
     <link rel="dns-prefetch" href={EXTERNAL_LINKS.api.web3forms} />
-    
+
     <script type="application/ld+json" set:html={JSON.stringify({
       "@context": "https://schema.org",
       "@type": "Person",
@@ -90,50 +98,88 @@ const twitterHandle = xSocial ? xSocial.url.replace(/https?:\/\/(www\.)?(x\.com|
       "knowsAbout": siteData.skills.forte.map(s => s.name).concat(siteData.skills.exposure),
       "description": description
     })} />
-    
-    <script is:inline>
-      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    </script>
   </head>
-  
+
   <body class="antialiased">
-    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-accent focus:text-white focus:font-bold focus:border-[2px] focus:border-border focus:shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)]">
-      Skip to main content
-    </a>
-    
-    <div id="scroll-progress" class="fixed top-0 left-0 right-0 h-1 bg-accent z-50 origin-left scale-x-0 transition-transform duration-75" role="progressbar" aria-label="Scroll progress"></div>
-    <script is:inline>
-      (() => {
-        const update = () => {
-          const s = document.documentElement.scrollTop || document.body.scrollTop;
-          const h = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-          const el = document.getElementById('scroll-progress');
-          if (el) el.style.transform = `scaleX(${h > 0 ? s / h : 0})`;
-        };
-        window.addEventListener('scroll', update, { passive: true });
-        update();
-      })();
-    </script>
-    <Navbar />
-    
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <div class="scroll-progress" data-scroll-progress aria-hidden="true"></div>
+    <Navbar current={sheet} />
+
     <main id="main-content">
       <slot />
     </main>
 
-    <footer class="border-t-[2px] border-border mt-32 py-12" role="contentinfo">
-      <div class="max-w-4xl mx-auto px-6 text-center text-sm text-muted">
-        <p>&copy; {new Date().getFullYear()} {siteData.name}. Website <a href="https://github.com/hmyunis/portfolio-site" target="_blank" rel="noopener noreferrer" class="text-accent hover:underline" aria-label="View source code on GitHub">
-          Source Code <span class="sr-only">on GitHub</span>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 -mt-1 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-          </svg>
-        </a>
-        </p>
-      </div>
-    </footer>
+    <Footer />
+
+    <script>
+      // Scroll progress: one transform write per animation frame, passive listener.
+      const bar = document.querySelector<HTMLElement>('[data-scroll-progress]');
+      if (bar) {
+        let queued = false;
+        const update = () => {
+          queued = false;
+          const max = document.documentElement.scrollHeight - innerHeight;
+          bar.style.transform = `scaleX(${max > 0 ? scrollY / max : 0})`;
+        };
+        addEventListener('scroll', () => {
+          if (!queued) {
+            queued = true;
+            requestAnimationFrame(update);
+          }
+        }, { passive: true });
+        update();
+      }
+
+      // Reveal-on-scroll. Content is visible by default; it is only hidden once
+      // this observer exists, so a script failure never leaves the page blank.
+      const targets = document.querySelectorAll('[data-reveal]');
+      if (targets.length && 'IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const io = new IntersectionObserver((entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-in');
+              io.unobserve(entry.target);
+            }
+          }
+        }, { rootMargin: '0px 0px -8% 0px' });
+        // Anything already on screen is marked visible before hiding the rest, so nothing flickers.
+        targets.forEach((el) => {
+          if (el.getBoundingClientRect().top < innerHeight) el.classList.add('is-in');
+          else io.observe(el);
+        });
+        document.documentElement.classList.add('js-reveal');
+      }
+    </script>
   </body>
 </html>
+
+<style>
+  .skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 100;
+    padding: 0.6rem 1rem;
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+    font-weight: 700;
+    transform: translateY(-200%);
+  }
+  .skip-link:focus {
+    transform: none;
+  }
+
+  .scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    height: 3px;
+    background: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    pointer-events: none;
+  }
+</style>
