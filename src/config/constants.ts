@@ -1,5 +1,5 @@
 export const SITE_CONFIG = {
-    url: "https://hamdimohammed.dev",
+    url: "https://hamdi.dev.et",
     themeColor: "#ef4444",
     /** Logo text in the navbar. */
     monogram: "HMY",
@@ -17,12 +17,25 @@ const getAccessKey = (): string => {
     return key;
 };
 
+/**
+ * Web3Forms' shared hCaptcha site key. On the free plan, Web3Forms only
+ * verifies tokens issued for this key, so a personal hCaptcha key won't work.
+ */
+const WEB3FORMS_HCAPTCHA_SITE_KEY = "50b2fe65-b00b-4b9e-ad62-3ba471098be2";
+
 export const FORM_CONFIG = {
     apiEndpoint: "https://api.web3forms.com/submit",
+    clientScript: "https://web3forms.com/client/script.js",
     accessKey: getAccessKey(),
+    hcaptchaSiteKey: WEB3FORMS_HCAPTCHA_SITE_KEY,
     subject: "New Contact Form Submission",
     successMessage: "Message sent successfully! I'll get back to you soon.",
     errorMessage: "Something went wrong. Please try again.",
+    captchaMessage: "Please complete the captcha before sending.",
+    captchaUnavailableMessage: "The captcha didn't load. Please refresh the page or email me directly.",
+    tooFastMessage: "That was quick! Please take a moment and try again.",
+    /** Submissions faster than this after page load are treated as bots. */
+    minFillTimeMs: 3000,
     successTimeout: 5000,
     copyTimeout: 2000,
 } as const;

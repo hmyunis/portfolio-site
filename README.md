@@ -103,6 +103,8 @@ src/
    ```
    Then edit `.env` and replace `your-access-key-here` with your actual Web3Forms access key from [web3forms.com](https://web3forms.com).
 
+   **Spam protection**: the contact form uses a hidden `botcheck` honeypot, a minimum fill-time check, and hCaptcha loaded through the Web3Forms client script. Web3Forms verifies the captcha token on its servers, so no backend is needed. It uses Web3Forms' free shared hCaptcha site key, so no hCaptcha account is needed. To make the captcha mandatory, open your form in the [Web3Forms dashboard](https://app.web3forms.com) and choose hCaptcha as the spam protection.
+
 2. **Personal Data**: Copy the example data files and fill them with your information:
    ```bash
    cp src/data/siteData.example.json src/data/siteData.json

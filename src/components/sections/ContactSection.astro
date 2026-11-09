@@ -117,6 +117,21 @@ const shortAddress = (address: string) =>
         <textarea id="ct-message" name="message" rows="6" required placeholder="What are you building, and by when?"></textarea>
       </div>
 
+      <!--
+        hCaptcha widget, loaded by the Web3Forms client script with Web3Forms'
+        free shared site key. Web3Forms verifies the token server-side, so no
+        backend of our own is needed. Rendered
+        explicitly (see script below) so it follows the site's light/dark theme.
+      -->
+      <div
+        class="h-captcha ct-captcha"
+        data-captcha="true"
+        data-sitekey={FORM_CONFIG.hcaptchaSiteKey}
+        data-render="explicit"
+        data-onload="onContactCaptchaLoad"
+        data-captcha-widget
+      ></div>
+
       <p class="ct-status" role="status" aria-live="polite" data-status></p>
 
       <button type="submit" class="btn btn--primary ct-submit" data-submit>
@@ -126,6 +141,8 @@ const shortAddress = (address: string) =>
     </form>
   </div>
 </Sheet>
+
+<script is:inline src={FORM_CONFIG.clientScript} async defer></script>
 
 <script>
   import { submitContactForm } from '../../utils/form';
@@ -152,26 +169,93 @@ const shortAddress = (address: string) =>
   const submit = form?.querySelector<HTMLButtonElement>('[data-submit]');
   const submitLabel = form?.querySelector<HTMLElement>('[data-submit-label]');
 
+  const captchaEl = form?.querySelector<HTMLElement>('[data-captcha-widget]');
+  const loadedAt = Date.now();
+
   const setStatus = (state: 'idle' | 'error' | 'success', message = '') => {
     if (!status) return;
     status.dataset.state = state;
     status.textContent = message;
   };
 
+  // ----- hCaptcha (loaded by the Web3Forms client script) -----
+  type HCaptcha = {
+    render: (el: HTMLElement, options: Record<string, unknown>) => string;
+    getResponse: (id?: string) => string;
+    reset: (id?: string) => void;
+    remove: (id?: string) => void;
+  };
+  const w = window as unknown as { hcaptcha?: HCaptcha; onContactCaptchaLoad?: () => void };
+  let captchaId: string | undefined;
+
+  const renderCaptcha = () => {
+    if (!w.hcaptcha || !captchaEl) return;
+    if (captchaId !== undefined) w.hcaptcha.remove(captchaId);
+    captchaId = w.hcaptcha.render(captchaEl, {
+      sitekey: captchaEl.dataset.sitekey,
+      theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
+    });
+  };
+  const resetCaptcha = () => {
+    if (w.hcaptcha && captchaId !== undefined) w.hcaptcha.reset(captchaId);
+  };
+
+  // hCaptcha calls this once its API is ready. Render immediately if it beat us here.
+  w.onContactCaptchaLoad = renderCaptcha;
+  if (w.hcaptcha) renderCaptcha();
+
+  // Re-render with the matching theme when the navbar toggles dark mode.
+  let isDark = document.documentElement.classList.contains('dark');
+  new MutationObserver(() => {
+    const dark = document.documentElement.classList.contains('dark');
+    if (dark === isDark) return;
+    isDark = dark;
+    renderCaptcha();
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
   form?.addEventListener('submit', async (event) => {
     event.preventDefault();
+
+    // Honeypot: real users never see or tick this box. Pretend success so bots
+    // get no signal, and skip the network request entirely.
+    const honeypot = form.querySelector<HTMLInputElement>('input[name="botcheck"]');
+    if (honeypot?.checked) {
+      form.reset();
+      setStatus('success', FORM_CONFIG.successMessage);
+      return;
+    }
+
     if (!form.checkValidity()) {
       form.classList.add('was-validated');
       form.querySelector<HTMLElement>(':invalid')?.focus();
       setStatus('error', 'Please fill in your name, a valid email, and a message.');
       return;
     }
+
+    // Scripts tend to fill and submit instantly; people take a few seconds.
+    if (Date.now() - loadedAt < FORM_CONFIG.minFillTimeMs) {
+      setStatus('error', FORM_CONFIG.tooFastMessage);
+      return;
+    }
+
+    if (!w.hcaptcha || captchaId === undefined) {
+      setStatus('error', FORM_CONFIG.captchaUnavailableMessage);
+      return;
+    }
+    if (!w.hcaptcha.getResponse(captchaId)) {
+      setStatus('error', FORM_CONFIG.captchaMessage);
+      return;
+    }
+
     setStatus('idle');
     if (submit) submit.disabled = true;
     if (submitLabel) submitLabel.textContent = 'Sending…';
 
+    // FormData picks up the h-captcha-response field hCaptcha adds to the form.
     const result = await submitContactForm(new FormData(form));
 
+    // Tokens are single-use, so always issue a fresh challenge.
+    resetCaptcha();
     if (submit) submit.disabled = false;
     if (submitLabel) submitLabel.textContent = 'Send message';
     if (result.success) {
@@ -335,6 +419,10 @@ const shortAddress = (address: string) =>
   .ct-hp {
     position: absolute;
     left: -9999px;
+  }
+  .ct-captcha {
+    /* Reserve the widget's height so the button doesn't jump when it loads. */
+    min-height: 78px;
   }
   .ct-field {
     display: flex;
