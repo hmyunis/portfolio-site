@@ -116,6 +116,46 @@ p {
     outline-offset: 3px;
 }
 
+/* Scrollbars: square accent thumb on a ruled track, matching the drafting-sheet style. */
+::-webkit-scrollbar {
+    width: 14px;
+    height: 14px;
+}
+::-webkit-scrollbar-track {
+    background: var(--color-surface);
+    border-left: 2px solid var(--color-border);
+}
+::-webkit-scrollbar-track:horizontal {
+    border-top: 2px solid var(--color-border);
+    border-left: 0;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--color-accent);
+    /* A bg-colored border insets the thumb from the track edge. */
+    border: 3px solid var(--color-surface);
+    border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text);
+}
+::-webkit-scrollbar-thumb:active {
+    background: var(--color-accent);
+    border-width: 2px;
+}
+::-webkit-scrollbar-corner {
+    background: var(--color-surface);
+}
+::-webkit-scrollbar-button {
+    display: none;
+}
+
+/* Firefox only. Chromium ignores the ::-webkit rules above once scrollbar-color is set. */
+@supports not selector(::-webkit-scrollbar) {
+    * {
+        scrollbar-color: var(--color-accent) var(--color-surface);
+    }
+}
+
 ::selection {
     background: var(--color-accent);
     color: var(--color-on-accent);
